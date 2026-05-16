@@ -1,21 +1,27 @@
-import { createClient } from '@/lib/supabase/server'
+import { db } from '@/lib/db'
+import { products, categories } from '@/lib/db/schema'
+import { eq } from 'drizzle-orm'
 import Link from 'next/link'
 import { Plus, Pencil, ToggleLeft, ToggleRight } from 'lucide-react'
 import AdminNav from '@/components/admin/AdminNav'
 import { revalidatePath } from 'next/cache'
 
 export default async function DashboardPage() {
-  const supabase = await createClient()
-
-  const { data: products } = await supabase
-    .from('products')
-    .select('*, category:categories(name)')
-    .order('created_at', { ascending: false })
+  const rows = await db
+    .select({
+      id: products.id,
+      name: products.name,
+      price: products.price,
+      active: products.active,
+      categoryName: categories.name,
+    })
+    .from(products)
+    .leftJoin(categories, eq(products.categoryId, categories.id))
+    .orderBy(products.createdAt)
 
   async function toggleActive(id: string, active: boolean) {
     'use server'
-    const supabase = await createClient()
-    await supabase.from('products').update({ active: !active }).eq('id', id)
+    await db.update(products).set({ active: !active }).where(eq(products.id, id))
     revalidatePath('/admin/dashboard')
   }
 
@@ -34,7 +40,7 @@ export default async function DashboardPage() {
           </Link>
         </div>
 
-        {!products || products.length === 0 ? (
+        {rows.length === 0 ? (
           <div className="text-center py-20 text-gray-400">
             <p className="text-sm">Nenhum produto cadastrado ainda.</p>
           </div>
@@ -51,29 +57,24 @@ export default async function DashboardPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-50">
-                {products.map((product) => (
+                {rows.map((product) => (
                   <tr key={product.id} className="hover:bg-gray-50 transition-colors">
                     <td className="px-4 py-3 font-medium text-gray-900 max-w-[200px] truncate">
                       {product.name}
                     </td>
                     <td className="px-4 py-3 text-gray-500 hidden sm:table-cell">
-                      {(product.category as { name: string } | null)?.name ?? '—'}
+                      {product.categoryName ?? '—'}
                     </td>
                     <td className="px-4 py-3 text-right text-gray-900 font-medium">
-                      R$ {product.price.toFixed(2).replace('.', ',')}
+                      R$ {Number(product.price).toFixed(2).replace('.', ',')}
                     </td>
                     <td className="px-4 py-3 text-center">
                       <form action={toggleActive.bind(null, product.id, product.active)}>
-                        <button
-                          type="submit"
-                          title={product.active ? 'Desativar' : 'Ativar'}
-                          className="cursor-pointer"
-                        >
-                          {product.active ? (
-                            <ToggleRight size={24} className="text-green-500" />
-                          ) : (
-                            <ToggleLeft size={24} className="text-gray-300" />
-                          )}
+                        <button type="submit" title={product.active ? 'Desativar' : 'Ativar'} className="cursor-pointer">
+                          {product.active
+                            ? <ToggleRight size={24} className="text-green-500" />
+                            : <ToggleLeft size={24} className="text-gray-300" />
+                          }
                         </button>
                       </form>
                     </td>

@@ -1,21 +1,12 @@
 'use client'
 
-import { useRouter } from 'next/navigation'
-import { createClient } from '@/lib/supabase/client'
+import { signOut } from 'next-auth/react'
 import { LogOut, Package, LayoutGrid } from 'lucide-react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 
 export default function AdminNav() {
-  const router = useRouter()
   const pathname = usePathname()
-
-  async function handleLogout() {
-    const supabase = createClient()
-    await supabase.auth.signOut()
-    router.push('/admin/login')
-    router.refresh()
-  }
 
   const navItem = (href: string, label: string, Icon: React.ElementType) => (
     <Link
@@ -39,7 +30,7 @@ export default function AdminNav() {
           {navItem('/', 'Ver catálogo', LayoutGrid)}
         </div>
         <button
-          onClick={handleLogout}
+          onClick={() => signOut({ callbackUrl: '/admin/login' })}
           className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-900 transition-colors cursor-pointer"
         >
           <LogOut size={16} />

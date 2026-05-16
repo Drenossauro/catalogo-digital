@@ -3,13 +3,22 @@
 import { useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
-import { createClient } from '@/lib/supabase/client'
-import { Category, Product } from '@/types'
 import { Upload, Trash2 } from 'lucide-react'
+import { Category } from '@/types'
+
+type ProductRow = {
+  id: string
+  name: string
+  description: string | null
+  price: string | number
+  categoryId: string | null
+  imageUrl: string | null
+  active: boolean
+}
 
 interface Props {
   categories: Category[]
-  product?: Product
+  product?: ProductRow
 }
 
 export default function ProductForm({ categories, product }: Props) {
@@ -18,10 +27,10 @@ export default function ProductForm({ categories, product }: Props) {
 
   const [name, setName] = useState(product?.name ?? '')
   const [description, setDescription] = useState(product?.description ?? '')
-  const [price, setPrice] = useState(product?.price?.toString() ?? '')
-  const [categoryId, setCategoryId] = useState(product?.category_id ?? '')
+  const [price, setPrice] = useState(product?.price ?? '')
+  const [categoryId, setCategoryId] = useState(product?.categoryId ?? '')
   const [active, setActive] = useState(product?.active ?? true)
-  const [imageUrl, setImageUrl] = useState(product?.image_url ?? '')
+  const [imageUrl, setImageUrl] = useState(product?.imageUrl ?? '')
   const [uploading, setUploading] = useState(false)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -31,22 +40,18 @@ export default function ProductForm({ categories, product }: Props) {
     if (!file) return
 
     setUploading(true)
-    const supabase = createClient()
-    const ext = file.name.split('.').pop()
-    const path = `products/${Date.now()}.${ext}`
+    const form = new FormData()
+    form.append('file', file)
 
-    const { error: uploadError } = await supabase.storage
-      .from('product-images')
-      .upload(path, file, { upsert: true })
-
-    if (uploadError) {
+    const res = await fetch('/api/upload', { method: 'POST', body: form })
+    if (!res.ok) {
       setError('Erro ao fazer upload da imagem.')
       setUploading(false)
       return
     }
 
-    const { data } = supabase.storage.from('product-images').getPublicUrl(path)
-    setImageUrl(data.publicUrl)
+    const { url } = await res.json()
+    setImageUrl(url)
     setUploading(false)
   }
 
@@ -55,22 +60,26 @@ export default function ProductForm({ categories, product }: Props) {
     setError(null)
     setSaving(true)
 
-    const supabase = createClient()
     const payload = {
+      id: product?.id,
       name,
       description: description || null,
-      price: parseFloat(price),
-      category_id: categoryId || null,
+      price,
+      categoryId: categoryId || null,
       active,
-      image_url: imageUrl || null,
+      imageUrl: imageUrl || null,
     }
 
-    if (product) {
-      const { error } = await supabase.from('products').update(payload).eq('id', product.id)
-      if (error) { setError('Erro ao salvar produto.'); setSaving(false); return }
-    } else {
-      const { error } = await supabase.from('products').insert(payload)
-      if (error) { setError('Erro ao criar produto.'); setSaving(false); return }
+    const res = await fetch('/api/produtos', {
+      method: product ? 'PUT' : 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    })
+
+    if (!res.ok) {
+      setError('Erro ao salvar produto.')
+      setSaving(false)
+      return
     }
 
     router.push('/admin/dashboard')
@@ -79,8 +88,8 @@ export default function ProductForm({ categories, product }: Props) {
 
   async function handleDelete() {
     if (!product || !confirm('Tem certeza que deseja excluir este produto?')) return
-    const supabase = createClient()
-    await supabase.from('products').delete().eq('id', product.id)
+
+    await fetch(`/api/produtos?id=${product.id}`, { method: 'DELETE' })
     router.push('/admin/dashboard')
     router.refresh()
   }

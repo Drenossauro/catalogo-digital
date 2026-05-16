@@ -1,43 +1,19 @@
-import { createServerClient } from '@supabase/ssr'
-import { NextResponse, type NextRequest } from 'next/server'
+import { auth } from '@/lib/auth'
+import { NextResponse } from 'next/server'
 
-export async function middleware(request: NextRequest) {
-  let supabaseResponse = NextResponse.next({ request })
+export default auth((req) => {
+  const isAdminRoute = req.nextUrl.pathname.startsWith('/admin')
+  const isLoginPage = req.nextUrl.pathname === '/admin/login'
+  const isAuthenticated = !!req.auth
 
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        getAll() {
-          return request.cookies.getAll()
-        },
-        setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value))
-          supabaseResponse = NextResponse.next({ request })
-          cookiesToSet.forEach(({ name, value, options }) =>
-            supabaseResponse.cookies.set(name, value, options)
-          )
-        },
-      },
-    }
-  )
-
-  const { data: { user } } = await supabase.auth.getUser()
-
-  const isAdminRoute = request.nextUrl.pathname.startsWith('/admin')
-  const isLoginPage = request.nextUrl.pathname === '/admin/login'
-
-  if (isAdminRoute && !isLoginPage && !user) {
-    return NextResponse.redirect(new URL('/admin/login', request.url))
+  if (isAdminRoute && !isLoginPage && !isAuthenticated) {
+    return NextResponse.redirect(new URL('/admin/login', req.url))
   }
 
-  if (isLoginPage && user) {
-    return NextResponse.redirect(new URL('/admin/dashboard', request.url))
+  if (isLoginPage && isAuthenticated) {
+    return NextResponse.redirect(new URL('/admin/dashboard', req.url))
   }
-
-  return supabaseResponse
-}
+})
 
 export const config = {
   matcher: ['/admin/:path*'],

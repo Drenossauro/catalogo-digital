@@ -1,24 +1,33 @@
-import { createClient } from '@/lib/supabase/server'
+import { db } from '@/lib/db'
+import { products, categories } from '@/lib/db/schema'
+import { eq } from 'drizzle-orm'
 import CatalogClient from '@/components/catalog/CatalogClient'
 
 export const revalidate = 60
 
 export default async function CatalogPage() {
-  const supabase = await createClient()
-
-  const [{ data: products }, { data: categories }] = await Promise.all([
-    supabase
-      .from('products')
-      .select('*, category:categories(id, name, slug, created_at)')
-      .eq('active', true)
-      .order('created_at', { ascending: false }),
-    supabase.from('categories').select('*').order('name'),
+  const [productRows, categoryRows] = await Promise.all([
+    db
+      .select({
+        id: products.id,
+        name: products.name,
+        description: products.description,
+        price: products.price,
+        categoryId: products.categoryId,
+        imageUrl: products.imageUrl,
+        active: products.active,
+        createdAt: products.createdAt,
+      })
+      .from(products)
+      .where(eq(products.active, true))
+      .orderBy(products.createdAt),
+    db.select().from(categories).orderBy(categories.name),
   ])
 
-  return (
-    <CatalogClient
-      products={products ?? []}
-      categories={categories ?? []}
-    />
-  )
+  const mapped = productRows.map((p) => ({
+    ...p,
+    price: Number(p.price),
+  }))
+
+  return <CatalogClient products={mapped} categories={categoryRows} />
 }

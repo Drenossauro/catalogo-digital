@@ -18,7 +18,7 @@ export default function CatalogClient({ products, categories }: Props) {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
 
   const filtered = selectedCategory
-    ? products.filter((p) => p.category_id === selectedCategory)
+    ? products.filter((p) => p.categoryId === selectedCategory)
     : products
 
   function addToCart(product: Product) {

@@ -13,9 +13,9 @@ export default function ProductCard({ product, onAdd }: Props) {
   return (
     <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden flex flex-col">
       <div className="relative aspect-square bg-gray-50">
-        {product.image_url ? (
+        {product.imageUrl ? (
           <Image
-            src={product.image_url}
+            src={product.imageUrl}
             alt={product.name}
             fill
             className="object-cover"

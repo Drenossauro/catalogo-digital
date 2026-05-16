@@ -2,7 +2,7 @@ export interface Category {
   id: string
   name: string
   slug: string
-  created_at: string
+  createdAt: Date | null
 }
 
 export interface Product {
@@ -10,11 +10,10 @@ export interface Product {
   name: string
   description: string | null
   price: number
-  category_id: string | null
-  image_url: string | null
+  categoryId: string | null
+  imageUrl: string | null
   active: boolean
-  created_at: string
-  category?: Category
+  createdAt: Date | null
 }
 
 export interface CartItem {

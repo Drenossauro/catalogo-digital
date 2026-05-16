@@ -1,4 +1,6 @@
-import { createClient } from '@/lib/supabase/server'
+import { db } from '@/lib/db'
+import { products, categories } from '@/lib/db/schema'
+import { eq } from 'drizzle-orm'
 import { notFound } from 'next/navigation'
 import AdminNav from '@/components/admin/AdminNav'
 import ProductForm from '@/components/admin/ProductForm'
@@ -11,14 +13,13 @@ interface Props {
 
 export default async function EditProductPage({ params }: Props) {
   const { id } = await params
-  const supabase = await createClient()
 
-  const [{ data: product }, { data: categories }] = await Promise.all([
-    supabase.from('products').select('*').eq('id', id).single(),
-    supabase.from('categories').select('*').order('name'),
+  const [product, cats] = await Promise.all([
+    db.select().from(products).where(eq(products.id, id)).limit(1),
+    db.select().from(categories).orderBy(categories.name),
   ])
 
-  if (!product) notFound()
+  if (!product[0]) notFound()
 
   return (
     <>
@@ -31,7 +32,7 @@ export default async function EditProductPage({ params }: Props) {
           <ChevronLeft size={16} /> Voltar
         </Link>
         <h1 className="text-xl font-bold text-gray-900 mb-6">Editar produto</h1>
-        <ProductForm categories={categories ?? []} product={product} />
+        <ProductForm categories={cats} product={product[0]} />
       </main>
     </>
   )

@@ -1,12 +1,12 @@
-import { createClient } from '@/lib/supabase/server'
+import { db } from '@/lib/db'
+import { categories } from '@/lib/db/schema'
 import AdminNav from '@/components/admin/AdminNav'
 import ProductForm from '@/components/admin/ProductForm'
 import Link from 'next/link'
 import { ChevronLeft } from 'lucide-react'
 
 export default async function NewProductPage() {
-  const supabase = await createClient()
-  const { data: categories } = await supabase.from('categories').select('*').order('name')
+  const cats = await db.select().from(categories).orderBy(categories.name)
 
   return (
     <>
@@ -19,7 +19,7 @@ export default async function NewProductPage() {
           <ChevronLeft size={16} /> Voltar
         </Link>
         <h1 className="text-xl font-bold text-gray-900 mb-6">Novo produto</h1>
-        <ProductForm categories={categories ?? []} />
+        <ProductForm categories={cats} />
       </main>
     </>
   )
