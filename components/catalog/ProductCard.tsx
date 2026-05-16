@@ -1,50 +1,56 @@
 'use client'
 
 import Image from 'next/image'
-import { ShoppingBag } from 'lucide-react'
+import { Plus } from 'lucide-react'
 import { Product } from '@/types'
 
 interface Props {
   product: Product
   onAdd: (product: Product) => void
+  size?: 'sm' | 'md'
 }
 
-export default function ProductCard({ product, onAdd }: Props) {
+export default function ProductCard({ product, onAdd, size = 'md' }: Props) {
   return (
-    <div className="bg-white rounded-xl border border-gray-100 overflow-hidden flex flex-col">
-      <div className="relative aspect-[3/2] bg-gray-50">
+    <div className="flex flex-col group cursor-pointer" onClick={() => onAdd(product)}>
+      {/* imagem */}
+      <div className={`relative bg-[#F0EDE8] overflow-hidden rounded-lg ${size === 'sm' ? 'aspect-[3/4] w-36' : 'aspect-[3/4]'}`}>
         {product.imageUrl ? (
           <Image
             src={product.imageUrl}
             alt={product.name}
             fill
-            className="object-cover"
-            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+            className="object-cover transition-transform duration-500 group-hover:scale-105"
+            sizes="(max-width: 640px) 50vw, 33vw"
           />
         ) : (
           <div className="w-full h-full flex items-center justify-center">
-            <ShoppingBag size={28} className="text-gray-200" />
+            <span className="text-3xl opacity-20">✦</span>
           </div>
         )}
+        {/* botão add flutuante */}
+        <button
+          onClick={(e) => { e.stopPropagation(); onAdd(product) }}
+          className="absolute bottom-2 right-2 w-8 h-8 bg-[#1a1a1a] text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 active:opacity-100 transition-opacity cursor-pointer shadow-md"
+          aria-label="Adicionar"
+        >
+          <Plus size={14} />
+        </button>
       </div>
 
-      <div className="p-2.5 flex flex-col gap-2 flex-1">
-        <p className="text-xs sm:text-sm font-medium text-gray-800 leading-snug line-clamp-2">
-          {product.name}
-        </p>
-        <div className="mt-auto flex flex-col gap-1.5">
-          <span className="text-sm font-bold text-gray-900">
-            R$ {product.price.toFixed(2).replace('.', ',')}
-          </span>
-          <button
-            onClick={() => onAdd(product)}
-            className="w-full flex items-center justify-center gap-1 bg-gray-900 text-white text-xs font-medium py-1.5 rounded-lg hover:bg-gray-700 active:scale-95 transition-all cursor-pointer"
-          >
-            <ShoppingBag size={11} />
-            Adicionar
-          </button>
-        </div>
+      {/* info */}
+      <div className="pt-2 px-0.5">
+        <p className="text-xs text-[#1a1a1a]/70 leading-snug line-clamp-2">{product.name}</p>
+        <p className="text-sm font-semibold mt-0.5">R$ {product.price.toFixed(2).replace('.', ',')}</p>
       </div>
+
+      {/* botão add mobile (sempre visível) */}
+      <button
+        onClick={(e) => { e.stopPropagation(); onAdd(product) }}
+        className="sm:hidden mt-2 w-full text-xs font-medium py-1.5 border border-[#1a1a1a]/20 rounded-md text-[#1a1a1a]/70 active:bg-[#1a1a1a] active:text-white transition-colors cursor-pointer"
+      >
+        + Adicionar
+      </button>
     </div>
   )
 }

@@ -3,7 +3,6 @@
 import { useState } from 'react'
 import { signIn } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
-import { Lock } from 'lucide-react'
 
 export default function LoginPage() {
   const router = useRouter()
@@ -16,68 +15,53 @@ export default function LoginPage() {
     e.preventDefault()
     setError(null)
     setLoading(true)
-
-    const result = await signIn('credentials', {
-      email,
-      password,
-      redirect: false,
-    })
-
-    if (result?.error) {
-      setError('E-mail ou senha inválidos.')
-      setLoading(false)
-      return
-    }
-
+    const result = await signIn('credentials', { email, password, redirect: false })
+    if (result?.error) { setError('E-mail ou senha inválidos.'); setLoading(false); return }
     router.push('/admin/dashboard')
     router.refresh()
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
-      <div className="w-full max-w-sm bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
-        <div className="flex flex-col items-center gap-2 mb-8">
-          <div className="w-12 h-12 bg-gray-900 rounded-full flex items-center justify-center">
-            <Lock size={20} className="text-white" />
-          </div>
-          <h1 className="text-xl font-bold text-gray-900">Área Admin</h1>
-          <p className="text-sm text-gray-500">Acesso restrito à loja</p>
+    <div className="min-h-screen flex items-center justify-center bg-[#FAF8F5] px-4">
+      <div className="w-full max-w-sm">
+        <div className="text-center mb-10">
+          <p className="font-serif text-3xl tracking-widest text-[#1a1a1a]">✦</p>
+          <h1 className="font-serif text-2xl mt-2 text-[#1a1a1a]">Área Admin</h1>
+          <p className="text-sm text-[#1a1a1a]/40 mt-1">Acesso restrito</p>
         </div>
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           <div className="flex flex-col gap-1.5">
-            <label className="text-sm font-medium text-gray-700">E-mail</label>
+            <label className="text-xs font-medium text-[#1a1a1a]/50 uppercase tracking-wider">E-mail</label>
             <input
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              className="border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-gray-900"
+              className="border-b border-black/15 bg-transparent px-0 py-2 text-sm focus:outline-none focus:border-[#1a1a1a] transition-colors"
               placeholder="seu@email.com"
             />
           </div>
           <div className="flex flex-col gap-1.5">
-            <label className="text-sm font-medium text-gray-700">Senha</label>
+            <label className="text-xs font-medium text-[#1a1a1a]/50 uppercase tracking-wider">Senha</label>
             <input
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              className="border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-gray-900"
+              className="border-b border-black/15 bg-transparent px-0 py-2 text-sm focus:outline-none focus:border-[#1a1a1a] transition-colors"
               placeholder="••••••••"
             />
           </div>
 
-          {error && (
-            <p className="text-sm text-red-500 text-center">{error}</p>
-          )}
+          {error && <p className="text-xs text-red-400 text-center">{error}</p>}
 
           <button
             type="submit"
             disabled={loading}
-            className="mt-2 bg-gray-900 text-white py-2.5 rounded-lg text-sm font-semibold hover:bg-gray-700 disabled:opacity-50 transition-colors cursor-pointer"
+            className="mt-4 bg-[#1a1a1a] text-white py-3 rounded-none text-sm tracking-widest uppercase font-medium hover:bg-black disabled:opacity-40 transition-colors cursor-pointer"
           >
-            {loading ? 'Entrando...' : 'Entrar'}
+            {loading ? '...' : 'Entrar'}
           </button>
         </form>
       </div>

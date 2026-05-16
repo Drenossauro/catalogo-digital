@@ -1,33 +1,30 @@
-import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
-import "./globals.css";
+import type { Metadata } from 'next'
+import { Cormorant_Garamond, Jost } from 'next/font/google'
+import './globals.css'
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
+const cormorant = Cormorant_Garamond({
+  variable: '--font-serif',
+  subsets: ['latin'],
+  weight: ['400', '500', '600'],
+})
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
+const jost = Jost({
+  variable: '--font-sans',
+  subsets: ['latin'],
+  weight: ['300', '400', '500', '600'],
+})
 
 export const metadata: Metadata = {
-  title: "Catálogo de Prata",
-  description: "Catálogo de joias e acessórios em prata",
-};
+  title: 'Catálogo de Prata',
+  description: 'Catálogo de joias e acessórios em prata',
+}
 
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html
-      lang="pt-BR"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
-    >
-      <body className="min-h-full flex flex-col overflow-x-hidden">{children}</body>
+    <html lang="pt-BR" className={`${cormorant.variable} ${jost.variable} h-full`}>
+      <body className="min-h-full flex flex-col bg-[#FAF8F5] text-[#1a1a1a] font-sans antialiased">
+        {children}
+      </body>
     </html>
-  );
+  )
 }

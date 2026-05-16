@@ -1,11 +1,11 @@
 'use client'
 
 import { useState } from 'react'
-import { ShoppingBag } from 'lucide-react'
+import Link from 'next/link'
+import { ShoppingBag, ChevronRight } from 'lucide-react'
 import { Product, Category, CartItem } from '@/types'
 import ProductCard from './ProductCard'
 import CartDrawer from './CartDrawer'
-import CategoryFilter from './CategoryFilter'
 
 interface Props {
   products: Product[]
@@ -18,20 +18,11 @@ interface Props {
 export default function CatalogClient({ products, categories, whatsappNumber, storeName, maxInstallments }: Props) {
   const [cart, setCart] = useState<CartItem[]>([])
   const [cartOpen, setCartOpen] = useState(false)
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
-
-  const filtered = selectedCategory
-    ? products.filter((p) => p.categoryId === selectedCategory)
-    : products
 
   function addToCart(product: Product) {
     setCart((prev) => {
       const existing = prev.find((i) => i.product.id === product.id)
-      if (existing) {
-        return prev.map((i) =>
-          i.product.id === product.id ? { ...i, quantity: i.quantity + 1 } : i
-        )
-      }
+      if (existing) return prev.map((i) => i.product.id === product.id ? { ...i, quantity: i.quantity + 1 } : i)
       return [...prev, { product, quantity: 1 }]
     })
   }
@@ -42,29 +33,30 @@ export default function CatalogClient({ products, categories, whatsappNumber, st
 
   function changeQty(productId: string, delta: number) {
     setCart((prev) =>
-      prev
-        .map((i) =>
-          i.product.id === productId ? { ...i, quantity: i.quantity + delta } : i
-        )
-        .filter((i) => i.quantity > 0)
+      prev.map((i) => i.product.id === productId ? { ...i, quantity: i.quantity + delta } : i)
+          .filter((i) => i.quantity > 0)
     )
   }
 
   const totalItems = cart.reduce((sum, i) => sum + i.quantity, 0)
 
+  // produtos sem categoria
+  const uncategorized = products.filter((p) => !p.categoryId)
+
   return (
-    <>
-      <header className="sticky top-0 z-30 bg-white/80 backdrop-blur border-b border-gray-100">
+    <div className="w-full">
+      {/* header */}
+      <header className="sticky top-0 z-30 bg-[#FAF8F5]/90 backdrop-blur-md border-b border-black/5">
         <div className="max-w-5xl mx-auto px-4 h-14 flex items-center justify-between">
-          <h1 className="font-bold text-gray-900 text-lg tracking-tight">✨ {storeName}</h1>
+          <h1 className="font-serif text-xl tracking-wide text-[#1a1a1a]">✦ {storeName}</h1>
           <button
             onClick={() => setCartOpen(true)}
-            className="relative p-2 rounded-full hover:bg-gray-100 transition-colors cursor-pointer"
+            className="relative p-2 cursor-pointer"
             aria-label="Abrir carrinho"
           >
-            <ShoppingBag size={22} />
+            <ShoppingBag size={20} strokeWidth={1.5} />
             {totalItems > 0 && (
-              <span className="absolute -top-0.5 -right-0.5 bg-green-500 text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center">
+              <span className="absolute -top-0.5 -right-0.5 bg-[#B8973A] text-white text-[9px] font-bold w-4 h-4 rounded-full flex items-center justify-center">
                 {totalItems}
               </span>
             )}
@@ -72,25 +64,52 @@ export default function CatalogClient({ products, categories, whatsappNumber, st
         </div>
       </header>
 
-      <main className="max-w-5xl mx-auto px-3 py-4 flex flex-col gap-4">
-        {categories.length > 0 && (
-          <CategoryFilter
-            categories={categories}
-            selected={selectedCategory}
-            onChange={setSelectedCategory}
-          />
-        )}
+      <main className="pb-16">
+        {/* seção por categoria */}
+        {categories.map((cat) => {
+          const catProducts = products.filter((p) => p.categoryId === cat.id)
+          if (catProducts.length === 0) return null
+          return (
+            <section key={cat.id} className="mt-8">
+              <div className="flex items-center justify-between px-4 mb-3">
+                <h2 className="font-serif text-xl text-[#1a1a1a]">{cat.name}</h2>
+                <Link
+                  href={`/categoria/${cat.slug}`}
+                  className="flex items-center gap-0.5 text-xs text-[#1a1a1a]/50 hover:text-[#1a1a1a] transition-colors"
+                >
+                  Ver tudo <ChevronRight size={13} />
+                </Link>
+              </div>
+              <div className="flex gap-3 overflow-x-auto no-scrollbar px-4 pb-1">
+                {catProducts.map((product) => (
+                  <div key={product.id} className="shrink-0 w-36">
+                    <ProductCard product={product} onAdd={addToCart} size="sm" />
+                  </div>
+                ))}
+                {catProducts.length >= 3 && (
+                  <Link
+                    href={`/categoria/${cat.slug}`}
+                    className="shrink-0 w-28 flex flex-col items-center justify-center gap-2 rounded-lg border border-dashed border-[#1a1a1a]/20 text-[#1a1a1a]/40 hover:text-[#1a1a1a]/70 hover:border-[#1a1a1a]/40 transition-colors"
+                  >
+                    <ChevronRight size={18} />
+                    <span className="text-xs text-center leading-tight">Ver<br />tudo</span>
+                  </Link>
+                )}
+              </div>
+            </section>
+          )
+        })}
 
-        {filtered.length === 0 ? (
-          <div className="text-center py-20 text-gray-400">
-            <p className="text-sm">Nenhum produto encontrado.</p>
-          </div>
-        ) : (
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-3">
-            {filtered.map((product) => (
-              <ProductCard key={product.id} product={product} onAdd={addToCart} />
-            ))}
-          </div>
+        {/* produtos sem categoria */}
+        {uncategorized.length > 0 && (
+          <section className="mt-8 px-4">
+            <h2 className="font-serif text-xl text-[#1a1a1a] mb-3">Outros</h2>
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+              {uncategorized.map((product) => (
+                <ProductCard key={product.id} product={product} onAdd={addToCart} />
+              ))}
+            </div>
+          </section>
         )}
       </main>
 
@@ -104,6 +123,6 @@ export default function CatalogClient({ products, categories, whatsappNumber, st
           onChangeQty={changeQty}
         />
       )}
-    </>
+    </div>
   )
 }

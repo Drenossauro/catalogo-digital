@@ -10,13 +10,13 @@ interface Props {
 
 export default function CategoryFilter({ categories, selected, onChange }: Props) {
   return (
-    <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
+    <div className="flex gap-2 overflow-x-auto px-3 py-2.5" style={{ scrollbarWidth: 'none' }}>
       <button
         onClick={() => onChange(null)}
-        className={`shrink-0 px-4 py-1.5 rounded-full text-sm font-medium transition-colors cursor-pointer ${
+        className={`shrink-0 px-4 py-1.5 rounded-full text-sm font-medium transition-colors cursor-pointer whitespace-nowrap ${
           selected === null
             ? 'bg-gray-900 text-white'
-            : 'bg-white border border-gray-200 text-gray-600 hover:border-gray-400'
+            : 'bg-white border border-gray-200 text-gray-600'
         }`}
       >
         Todos
@@ -25,10 +25,10 @@ export default function CategoryFilter({ categories, selected, onChange }: Props
         <button
           key={cat.id}
           onClick={() => onChange(cat.id)}
-          className={`shrink-0 px-4 py-1.5 rounded-full text-sm font-medium transition-colors cursor-pointer ${
+          className={`shrink-0 px-4 py-1.5 rounded-full text-sm font-medium transition-colors cursor-pointer whitespace-nowrap ${
             selected === cat.id
               ? 'bg-gray-900 text-white'
-              : 'bg-white border border-gray-200 text-gray-600 hover:border-gray-400'
+              : 'bg-white border border-gray-200 text-gray-600'
           }`}
         >
           {cat.name}

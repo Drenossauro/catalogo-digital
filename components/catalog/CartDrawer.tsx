@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { X, Trash2, MessageCircle, ShoppingBag } from 'lucide-react'
+import { X, Trash2, MessageCircle, ShoppingBag, Minus, Plus } from 'lucide-react'
 import { CartItem } from '@/types'
 import { buildWhatsAppMessage, buildWhatsAppUrl } from '@/lib/whatsapp'
 
@@ -18,94 +18,80 @@ export default function CartDrawer({ items, whatsappNumber, maxInstallments, onC
   const [installments, setInstallments] = useState(1)
 
   const total = items.reduce((sum, { product, quantity }) => sum + product.price * quantity, 0)
-  const installmentValue = total / installments
 
   function handleSendWhatsApp() {
-    const message = buildWhatsAppMessage(items, installments, installmentValue)
-    const url = buildWhatsAppUrl(message, whatsappNumber)
-    window.open(url, '_blank')
+    const message = buildWhatsAppMessage(items, installments, total / installments)
+    window.open(buildWhatsAppUrl(message, whatsappNumber), '_blank')
   }
 
   return (
     <>
-      <div className="fixed inset-0 bg-black/40 z-40 backdrop-blur-sm" onClick={onClose} />
-      <div className="fixed right-0 top-0 h-full w-full max-w-sm bg-white z-50 flex flex-col shadow-2xl">
-        <div className="flex items-center justify-between p-4 border-b border-gray-100">
+      <div className="fixed inset-0 bg-black/30 z-40 backdrop-blur-sm" onClick={onClose} />
+      <div className="fixed right-0 top-0 h-full w-full max-w-sm bg-[#FAF8F5] z-50 flex flex-col">
+        {/* header */}
+        <div className="flex items-center justify-between px-5 py-4 border-b border-black/8">
           <div className="flex items-center gap-2">
-            <ShoppingBag size={20} />
-            <span className="font-semibold text-gray-900">Minha seleção</span>
+            <ShoppingBag size={18} strokeWidth={1.5} />
+            <span className="font-serif text-lg">Seleção</span>
           </div>
-          <button onClick={onClose} className="text-gray-400 hover:text-gray-700 transition-colors cursor-pointer">
-            <X size={22} />
+          <button onClick={onClose} className="text-[#1a1a1a]/40 hover:text-[#1a1a1a] transition-colors cursor-pointer p-1">
+            <X size={20} strokeWidth={1.5} />
           </button>
         </div>
 
         {items.length === 0 ? (
-          <div className="flex-1 flex flex-col items-center justify-center text-gray-400 gap-3">
-            <ShoppingBag size={48} strokeWidth={1} />
+          <div className="flex-1 flex flex-col items-center justify-center gap-3 text-[#1a1a1a]/30">
+            <ShoppingBag size={40} strokeWidth={1} />
             <p className="text-sm">Nenhum item adicionado</p>
           </div>
         ) : (
           <>
-            <ul className="flex-1 overflow-y-auto divide-y divide-gray-50">
+            <ul className="flex-1 overflow-y-auto divide-y divide-black/5">
               {items.map(({ product, quantity }) => (
-                <li key={product.id} className="flex items-center gap-3 p-4">
+                <li key={product.id} className="flex items-center gap-3 px-5 py-4">
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-gray-800 truncate">{product.name}</p>
-                    <p className="text-sm text-gray-500">
+                    <p className="text-sm text-[#1a1a1a] leading-snug line-clamp-2">{product.name}</p>
+                    <p className="text-xs text-[#1a1a1a]/50 mt-0.5">
                       R$ {(product.price * quantity).toFixed(2).replace('.', ',')}
                     </p>
                   </div>
                   <div className="flex items-center gap-2 shrink-0">
-                    <button
-                      onClick={() => onChangeQty(product.id, -1)}
-                      className="w-6 h-6 rounded-full border border-gray-200 text-gray-600 flex items-center justify-center hover:bg-gray-100 cursor-pointer text-sm font-medium"
-                    >
-                      −
+                    <button onClick={() => onChangeQty(product.id, -1)} className="w-7 h-7 border border-black/15 rounded-full flex items-center justify-center hover:bg-black/5 cursor-pointer transition-colors">
+                      <Minus size={12} />
                     </button>
-                    <span className="w-4 text-center text-sm font-medium">{quantity}</span>
-                    <button
-                      onClick={() => onChangeQty(product.id, 1)}
-                      className="w-6 h-6 rounded-full border border-gray-200 text-gray-600 flex items-center justify-center hover:bg-gray-100 cursor-pointer text-sm font-medium"
-                    >
-                      +
+                    <span className="w-5 text-center text-sm">{quantity}</span>
+                    <button onClick={() => onChangeQty(product.id, 1)} className="w-7 h-7 border border-black/15 rounded-full flex items-center justify-center hover:bg-black/5 cursor-pointer transition-colors">
+                      <Plus size={12} />
                     </button>
-                    <button
-                      onClick={() => onRemove(product.id)}
-                      className="ml-1 text-gray-300 hover:text-red-400 transition-colors cursor-pointer"
-                    >
-                      <Trash2 size={16} />
+                    <button onClick={() => onRemove(product.id)} className="ml-1 text-[#1a1a1a]/20 hover:text-red-400 transition-colors cursor-pointer">
+                      <Trash2 size={15} />
                     </button>
                   </div>
                 </li>
               ))}
             </ul>
 
-            <div className="p-4 border-t border-gray-100 space-y-3">
-              <div className="flex justify-between text-sm font-semibold text-gray-900">
-                <span>Total</span>
-                <span>R$ {total.toFixed(2).replace('.', ',')}</span>
+            <div className="px-5 py-4 border-t border-black/8 space-y-4">
+              <div className="flex justify-between text-sm">
+                <span className="text-[#1a1a1a]/60">Total</span>
+                <span className="font-semibold">R$ {total.toFixed(2).replace('.', ',')}</span>
               </div>
 
               {maxInstallments > 1 && (
-                <div className="flex flex-col gap-1.5">
-                  <label className="text-xs font-medium text-gray-600">Parcelamento</label>
-                  <div className="flex gap-2 overflow-x-auto pb-1">
+                <div>
+                  <p className="text-xs text-[#1a1a1a]/50 mb-2">Parcelamento</p>
+                  <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1">
                     {Array.from({ length: maxInstallments }, (_, i) => i + 1).map((n) => (
                       <button
                         key={n}
-                        type="button"
                         onClick={() => setInstallments(n)}
-                        className={`shrink-0 py-2 px-3 rounded-lg text-xs font-medium border transition-colors cursor-pointer text-center whitespace-nowrap ${
+                        className={`shrink-0 px-3 py-1.5 rounded-full text-xs border transition-colors cursor-pointer whitespace-nowrap ${
                           installments === n
-                            ? 'bg-gray-900 text-white border-gray-900'
-                            : 'bg-white text-gray-600 border-gray-200 hover:border-gray-400'
+                            ? 'bg-[#1a1a1a] text-white border-[#1a1a1a]'
+                            : 'border-black/15 text-[#1a1a1a]/60 hover:border-black/30'
                         }`}
                       >
-                        {n === 1
-                          ? 'À vista'
-                          : `${n}x de R$ ${(total / n).toFixed(2).replace('.', ',')}`
-                        }
+                        {n === 1 ? 'À vista' : `${n}x R$ ${(total / n).toFixed(2).replace('.', ',')}`}
                       </button>
                     ))}
                   </div>
@@ -114,12 +100,12 @@ export default function CartDrawer({ items, whatsappNumber, maxInstallments, onC
 
               <button
                 onClick={handleSendWhatsApp}
-                className="w-full flex items-center justify-center gap-2 bg-green-500 hover:bg-green-600 active:scale-95 text-white font-semibold py-3 rounded-xl transition-all cursor-pointer"
+                className="w-full flex items-center justify-center gap-2 bg-[#25D366] hover:bg-[#1fb856] active:scale-95 text-white font-medium py-3 rounded-xl transition-all cursor-pointer text-sm"
               >
-                <MessageCircle size={20} />
+                <MessageCircle size={18} />
                 Enviar pedido no WhatsApp
               </button>
-              <p className="text-xs text-center text-gray-400">
+              <p className="text-xs text-center text-[#1a1a1a]/30">
                 Você será redirecionado ao WhatsApp com a lista montada
               </p>
             </div>
