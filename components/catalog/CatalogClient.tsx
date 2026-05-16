@@ -113,6 +113,16 @@ export default function CatalogClient({ products, categories, whatsappNumber, st
         )}
       </main>
 
+      {totalItems > 0 && (
+        <button
+          onClick={() => setCartOpen(true)}
+          className="fixed bottom-6 right-4 z-40 flex items-center gap-2 bg-[#1a1a1a] text-white px-4 py-3 rounded-full shadow-lg cursor-pointer active:scale-95 transition-transform"
+        >
+          <ShoppingBag size={16} strokeWidth={1.5} />
+          <span className="text-sm font-medium">{totalItems} {totalItems === 1 ? 'item' : 'itens'}</span>
+        </button>
+      )}
+
       {cartOpen && (
         <CartDrawer
           items={cart}

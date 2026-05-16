@@ -12,7 +12,7 @@ interface Props {
 
 export default function ProductCard({ product, onAdd, size = 'md' }: Props) {
   return (
-    <div className="flex flex-col group cursor-pointer" onClick={() => onAdd(product)}>
+    <div className="flex flex-col group">
       {/* imagem */}
       <div className={`relative bg-[#F0EDE8] overflow-hidden rounded-lg ${size === 'sm' ? 'aspect-[3/4] w-36' : 'aspect-[3/4]'}`}>
         {product.imageUrl ? (
@@ -31,7 +31,7 @@ export default function ProductCard({ product, onAdd, size = 'md' }: Props) {
         {/* botão add flutuante */}
         <button
           onClick={(e) => { e.stopPropagation(); onAdd(product) }}
-          className="absolute bottom-2 right-2 w-8 h-8 bg-[#1a1a1a] text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 active:opacity-100 transition-opacity cursor-pointer shadow-md"
+          className="absolute bottom-2 right-2 w-8 h-8 bg-[#1a1a1a] text-white rounded-full flex items-center justify-center sm:opacity-0 sm:group-hover:opacity-100 transition-opacity cursor-pointer shadow-md"
           aria-label="Adicionar"
         >
           <Plus size={14} />
