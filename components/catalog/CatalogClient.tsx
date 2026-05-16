@@ -72,7 +72,7 @@ export default function CatalogClient({ products, categories, whatsappNumber, st
         </div>
       </header>
 
-      <main className="max-w-5xl mx-auto px-4 py-6 flex flex-col gap-6">
+      <main className="max-w-5xl mx-auto px-3 py-4 flex flex-col gap-4">
         {categories.length > 0 && (
           <CategoryFilter
             categories={categories}
@@ -86,7 +86,7 @@ export default function CatalogClient({ products, categories, whatsappNumber, st
             <p className="text-sm">Nenhum produto encontrado.</p>
           </div>
         ) : (
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-3">
             {filtered.map((product) => (
               <ProductCard key={product.id} product={product} onAdd={addToCart} />
             ))}
