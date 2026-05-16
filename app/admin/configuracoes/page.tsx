@@ -12,7 +12,7 @@ export default async function ConfiguracoesPage() {
   return (
     <>
       <AdminNav />
-      <main className="max-w-lg mx-auto px-4 py-6">
+      <main className="w-full px-4 py-6">
         <h1 className="font-serif text-xl text-[#1a1a1a] mb-8">Configurações</h1>
         <SettingsForm settings={settings} />
       </main>

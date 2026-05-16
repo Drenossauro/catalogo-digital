@@ -13,7 +13,7 @@ export default async function NewProductPage() {
   return (
     <>
       <AdminNav />
-      <main className="max-w-lg mx-auto px-4 py-6">
+      <main className="w-full px-4 py-6">
         <Link
           href="/admin/dashboard"
           className="flex items-center gap-1 text-sm text-[#1a1a1a]/40 hover:text-[#1a1a1a] mb-6 w-fit transition-colors"

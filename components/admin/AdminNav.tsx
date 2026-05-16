@@ -24,7 +24,7 @@ export default function AdminNav() {
 
   return (
     <header className="bg-[#FAF8F5] border-b border-black/8">
-      <div className="max-w-5xl mx-auto px-4 h-14 flex items-center justify-between">
+      <div className="w-full px-4 h-14 flex items-center justify-between">
         <div className="flex items-center gap-1">
           <span className="font-serif text-base mr-3 text-[#1a1a1a]/30">✦</span>
           {navItem('/admin/dashboard', 'Produtos', Package)}

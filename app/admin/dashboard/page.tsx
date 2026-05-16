@@ -30,7 +30,7 @@ export default async function DashboardPage() {
   return (
     <>
       <AdminNav />
-      <main className="max-w-5xl mx-auto py-6">
+      <main className="w-full py-6">
         <div className="flex items-center justify-between mb-6 px-4">
           <h1 className="font-serif text-xl text-[#1a1a1a]">Produtos</h1>
           <Link
