@@ -3,7 +3,7 @@ import { products, categories, storeSettings } from '@/lib/db/schema'
 import { eq } from 'drizzle-orm'
 import CatalogClient from '@/components/catalog/CatalogClient'
 
-export const revalidate = 60
+export const dynamic = 'force-dynamic'
 
 export default async function CatalogPage() {
   const [productRows, categoryRows, settingsRows] = await Promise.all([

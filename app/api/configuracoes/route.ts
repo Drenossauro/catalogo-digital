@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic'
+
 import { auth } from '@/lib/auth'
 import { db } from '@/lib/db'
 import { storeSettings } from '@/lib/db/schema'
