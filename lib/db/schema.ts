@@ -18,6 +18,13 @@ export const products = pgTable('products', {
   createdAt: timestamp('created_at').defaultNow(),
 })
 
+export const storeSettings = pgTable('store_settings', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  storeName: text('store_name').notNull().default('Minha Loja'),
+  whatsappNumber: text('whatsapp_number').notNull().default(''),
+  updatedAt: timestamp('updated_at').defaultNow(),
+})
+
 export const users = pgTable('users', {
   id: uuid('id').primaryKey().defaultRandom(),
   email: text('email').notNull().unique(),

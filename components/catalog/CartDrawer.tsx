@@ -6,17 +6,18 @@ import { buildWhatsAppMessage, buildWhatsAppUrl } from '@/lib/whatsapp'
 
 interface Props {
   items: CartItem[]
+  whatsappNumber: string
   onClose: () => void
   onRemove: (productId: string) => void
   onChangeQty: (productId: string, delta: number) => void
 }
 
-export default function CartDrawer({ items, onClose, onRemove, onChangeQty }: Props) {
+export default function CartDrawer({ items, whatsappNumber, onClose, onRemove, onChangeQty }: Props) {
   const total = items.reduce((sum, { product, quantity }) => sum + product.price * quantity, 0)
 
   function handleSendWhatsApp() {
     const message = buildWhatsAppMessage(items)
-    const url = buildWhatsAppUrl(message)
+    const url = buildWhatsAppUrl(message, whatsappNumber)
     window.open(url, '_blank')
   }
 

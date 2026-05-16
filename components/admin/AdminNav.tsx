@@ -1,7 +1,7 @@
 'use client'
 
 import { signOut } from 'next-auth/react'
-import { LogOut, Package, LayoutGrid } from 'lucide-react'
+import { LogOut, Package, LayoutGrid, Settings } from 'lucide-react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 
@@ -27,6 +27,7 @@ export default function AdminNav() {
       <div className="max-w-5xl mx-auto px-4 h-14 flex items-center justify-between">
         <div className="flex items-center gap-1">
           {navItem('/admin/dashboard', 'Produtos', Package)}
+          {navItem('/admin/configuracoes', 'Configurações', Settings)}
           {navItem('/', 'Ver catálogo', LayoutGrid)}
         </div>
         <button

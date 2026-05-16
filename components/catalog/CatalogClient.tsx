@@ -10,9 +10,11 @@ import CategoryFilter from './CategoryFilter'
 interface Props {
   products: Product[]
   categories: Category[]
+  whatsappNumber: string
+  storeName: string
 }
 
-export default function CatalogClient({ products, categories }: Props) {
+export default function CatalogClient({ products, categories, whatsappNumber, storeName }: Props) {
   const [cart, setCart] = useState<CartItem[]>([])
   const [cartOpen, setCartOpen] = useState(false)
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
@@ -53,7 +55,7 @@ export default function CatalogClient({ products, categories }: Props) {
     <>
       <header className="sticky top-0 z-30 bg-white/80 backdrop-blur border-b border-gray-100">
         <div className="max-w-5xl mx-auto px-4 h-14 flex items-center justify-between">
-          <h1 className="font-bold text-gray-900 text-lg tracking-tight">✨ Catálogo de Prata</h1>
+          <h1 className="font-bold text-gray-900 text-lg tracking-tight">✨ {storeName}</h1>
           <button
             onClick={() => setCartOpen(true)}
             className="relative p-2 rounded-full hover:bg-gray-100 transition-colors cursor-pointer"
@@ -94,6 +96,7 @@ export default function CatalogClient({ products, categories }: Props) {
       {cartOpen && (
         <CartDrawer
           items={cart}
+          whatsappNumber={whatsappNumber}
           onClose={() => setCartOpen(false)}
           onRemove={removeFromCart}
           onChangeQty={changeQty}

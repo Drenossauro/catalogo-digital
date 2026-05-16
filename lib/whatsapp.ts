@@ -10,7 +10,6 @@ export function buildWhatsAppMessage(items: CartItem[]): string {
   return `Olá! Gostaria de encomendar:\n\n${lines.join('\n')}`
 }
 
-export function buildWhatsAppUrl(message: string): string {
-  const number = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER
-  return `https://wa.me/${number}?text=${encodeURIComponent(message)}`
+export function buildWhatsAppUrl(message: string, whatsappNumber: string): string {
+  return `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`
 }
