@@ -30,8 +30,8 @@ export default async function DashboardPage() {
   return (
     <>
       <AdminNav />
-      <main className="max-w-5xl mx-auto px-4 py-6">
-        <div className="flex items-center justify-between mb-6">
+      <main className="max-w-5xl mx-auto py-6">
+        <div className="flex items-center justify-between mb-6 px-4">
           <h1 className="font-serif text-xl text-[#1a1a1a]">Produtos</h1>
           <Link
             href="/admin/produtos/novo"
@@ -43,41 +43,41 @@ export default async function DashboardPage() {
         </div>
 
         {rows.length === 0 ? (
-          <div className="text-center py-24 text-[#1a1a1a]/30">
+          <div className="text-center py-24 text-[#1a1a1a]/30 px-4">
             <p className="text-sm">Nenhum produto cadastrado ainda.</p>
           </div>
         ) : (
           <>
-            {/* Mobile: lista */}
-            <div className="flex flex-col divide-y divide-black/5 sm:hidden">
+            {/* Mobile: lista full-bleed */}
+            <div className="flex flex-col sm:hidden border-t border-black/8">
               {rows.map((product) => (
-                <div key={product.id} className="flex items-center gap-3 py-3.5">
+                <div key={product.id} className="flex items-center gap-3 px-4 py-4 border-b border-black/5">
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm text-[#1a1a1a] truncate">{product.name}</p>
+                    <p className="text-sm font-medium text-[#1a1a1a] truncate">{product.name}</p>
                     <p className="text-xs text-[#1a1a1a]/40 mt-0.5">
                       {product.categoryName ?? 'Sem categoria'} · R$ {Number(product.price).toFixed(2).replace('.', ',')}
                     </p>
                   </div>
                   <form action={toggleActive.bind(null, product.id, product.active)}>
-                    <button type="submit" className="cursor-pointer p-1">
+                    <button type="submit" className="cursor-pointer p-1.5">
                       {product.active
-                        ? <ToggleRight size={26} className="text-[#1a1a1a]" />
-                        : <ToggleLeft size={26} className="text-[#1a1a1a]/20" />
+                        ? <ToggleRight size={28} className="text-[#1a1a1a]" />
+                        : <ToggleLeft size={28} className="text-[#1a1a1a]/20" />
                       }
                     </button>
                   </form>
                   <Link
                     href={`/admin/produtos/${product.id}/editar`}
-                    className="text-[#1a1a1a]/30 hover:text-[#1a1a1a] transition-colors p-1"
+                    className="text-[#1a1a1a]/30 hover:text-[#1a1a1a] transition-colors p-1.5"
                   >
-                    <Pencil size={15} />
+                    <Pencil size={16} />
                   </Link>
                 </div>
               ))}
             </div>
 
             {/* Desktop: tabela */}
-            <div className="hidden sm:block border-t border-black/8">
+            <div className="hidden sm:block px-4 border-t border-black/8">
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-black/8">
