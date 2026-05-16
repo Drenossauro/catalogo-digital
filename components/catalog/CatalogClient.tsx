@@ -113,11 +113,19 @@ export default function CatalogClient({ products, categories, whatsappNumber, st
         )}
       </main>
 
-      {/* rodapé discreto → admin */}
-      <footer className="py-10 flex justify-center">
+      {/* rodapé */}
+      <footer className="py-10 flex flex-col items-center gap-4">
+        <a
+          href={`https://wa.me/5567999541009?text=${encodeURIComponent('Oi! Gostaria de criar meu catálogo digital')}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-xs text-[#1a1a1a]/40 hover:text-[#1a1a1a]/70 transition-colors border-b border-[#1a1a1a]/20 pb-0.5"
+        >
+          Crie seu catálogo digital ✦
+        </a>
         <Link
           href="/admin/dashboard"
-          className="flex items-center gap-1.5 text-[#1a1a1a]/20 hover:text-[#1a1a1a]/50 transition-colors text-xs"
+          className="flex items-center gap-1.5 text-[#1a1a1a]/15 hover:text-[#1a1a1a]/40 transition-colors text-xs"
         >
           <Settings size={11} strokeWidth={1.5} />
           Admin
