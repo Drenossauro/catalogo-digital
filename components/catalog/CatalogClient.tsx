@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { ShoppingBag, ChevronRight } from 'lucide-react'
+import { ShoppingBag, ChevronRight, Settings } from 'lucide-react'
 import { Product, Category, CartItem } from '@/types'
 import ProductCard from './ProductCard'
 import CartDrawer from './CartDrawer'
@@ -112,6 +112,17 @@ export default function CatalogClient({ products, categories, whatsappNumber, st
           </section>
         )}
       </main>
+
+      {/* rodapé discreto → admin */}
+      <footer className="py-10 flex justify-center">
+        <Link
+          href="/admin/dashboard"
+          className="flex items-center gap-1.5 text-[#1a1a1a]/20 hover:text-[#1a1a1a]/50 transition-colors text-xs"
+        >
+          <Settings size={11} strokeWidth={1.5} />
+          Admin
+        </Link>
+      </footer>
 
       {totalItems > 0 && (
         <button

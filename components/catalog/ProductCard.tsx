@@ -44,13 +44,6 @@ export default function ProductCard({ product, onAdd, size = 'md' }: Props) {
         <p className="text-sm font-semibold mt-0.5">R$ {product.price.toFixed(2).replace('.', ',')}</p>
       </div>
 
-      {/* botão add mobile (sempre visível) */}
-      <button
-        onClick={(e) => { e.stopPropagation(); onAdd(product) }}
-        className="sm:hidden mt-2 w-full text-xs font-medium py-1.5 border border-[#1a1a1a]/20 rounded-md text-[#1a1a1a]/70 active:bg-[#1a1a1a] active:text-white transition-colors cursor-pointer"
-      >
-        + Adicionar
-      </button>
     </div>
   )
 }

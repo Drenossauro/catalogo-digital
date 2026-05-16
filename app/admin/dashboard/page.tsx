@@ -6,6 +6,7 @@ import { eq } from 'drizzle-orm'
 import Link from 'next/link'
 import { Plus, Pencil, ToggleLeft, ToggleRight } from 'lucide-react'
 import AdminNav from '@/components/admin/AdminNav'
+import ShareCard from '@/components/admin/ShareCard'
 import { revalidatePath } from 'next/cache'
 
 export default async function DashboardPage() {
@@ -31,6 +32,8 @@ export default async function DashboardPage() {
     <>
       <AdminNav />
       <main className="w-full py-6">
+        <ShareCard />
+
         <div className="flex items-center justify-between mb-6 px-4">
           <h1 className="font-serif text-xl text-[#1a1a1a]">Produtos</h1>
           <Link
