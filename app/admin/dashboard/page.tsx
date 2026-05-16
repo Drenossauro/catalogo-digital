@@ -30,93 +30,92 @@ export default async function DashboardPage() {
   return (
     <>
       <AdminNav />
-      <main className="max-w-5xl mx-auto px-3 sm:px-4 py-6 sm:py-8">
-        <div className="flex items-center justify-between mb-5">
-          <h1 className="text-lg sm:text-xl font-bold text-gray-900">Produtos</h1>
+      <main className="max-w-5xl mx-auto px-4 py-6">
+        <div className="flex items-center justify-between mb-6">
+          <h1 className="font-serif text-xl text-[#1a1a1a]">Produtos</h1>
           <Link
             href="/admin/produtos/novo"
-            className="flex items-center gap-1.5 bg-gray-900 text-white text-sm font-medium px-3 sm:px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors"
+            className="flex items-center gap-1.5 bg-[#1a1a1a] text-white text-xs tracking-widest uppercase font-medium px-4 py-2.5 hover:bg-black transition-colors"
           >
-            <Plus size={16} />
-            <span className="hidden sm:inline">Novo produto</span>
-            <span className="sm:hidden">Novo</span>
+            <Plus size={14} />
+            Novo
           </Link>
         </div>
 
         {rows.length === 0 ? (
-          <div className="text-center py-20 text-gray-400">
+          <div className="text-center py-24 text-[#1a1a1a]/30">
             <p className="text-sm">Nenhum produto cadastrado ainda.</p>
           </div>
         ) : (
           <>
-            {/* Mobile: cards */}
-            <div className="flex flex-col gap-2 sm:hidden">
+            {/* Mobile: lista */}
+            <div className="flex flex-col divide-y divide-black/5 sm:hidden">
               {rows.map((product) => (
-                <div key={product.id} className="bg-white rounded-xl border border-gray-100 px-4 py-3 flex items-center gap-3">
+                <div key={product.id} className="flex items-center gap-3 py-3.5">
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-gray-900 truncate">{product.name}</p>
-                    <p className="text-xs text-gray-400 mt-0.5">
-                      {product.categoryName ?? '—'} · R$ {Number(product.price).toFixed(2).replace('.', ',')}
+                    <p className="text-sm text-[#1a1a1a] truncate">{product.name}</p>
+                    <p className="text-xs text-[#1a1a1a]/40 mt-0.5">
+                      {product.categoryName ?? 'Sem categoria'} · R$ {Number(product.price).toFixed(2).replace('.', ',')}
                     </p>
                   </div>
                   <form action={toggleActive.bind(null, product.id, product.active)}>
-                    <button type="submit" className="cursor-pointer">
+                    <button type="submit" className="cursor-pointer p-1">
                       {product.active
-                        ? <ToggleRight size={26} className="text-green-500" />
-                        : <ToggleLeft size={26} className="text-gray-300" />
+                        ? <ToggleRight size={26} className="text-[#1a1a1a]" />
+                        : <ToggleLeft size={26} className="text-[#1a1a1a]/20" />
                       }
                     </button>
                   </form>
                   <Link
                     href={`/admin/produtos/${product.id}/editar`}
-                    className="text-gray-400 hover:text-gray-900 transition-colors p-1"
+                    className="text-[#1a1a1a]/30 hover:text-[#1a1a1a] transition-colors p-1"
                   >
-                    <Pencil size={16} />
+                    <Pencil size={15} />
                   </Link>
                 </div>
               ))}
             </div>
 
             {/* Desktop: tabela */}
-            <div className="hidden sm:block bg-white rounded-2xl border border-gray-100 overflow-hidden">
+            <div className="hidden sm:block border-t border-black/8">
               <table className="w-full text-sm">
-                <thead className="bg-gray-50 text-gray-500 text-xs uppercase tracking-wide">
-                  <tr>
-                    <th className="text-left px-4 py-3">Produto</th>
-                    <th className="text-left px-4 py-3">Categoria</th>
-                    <th className="text-right px-4 py-3">Preço</th>
-                    <th className="text-center px-4 py-3">Status</th>
-                    <th className="px-4 py-3" />
+                <thead>
+                  <tr className="border-b border-black/8">
+                    <th className="text-left py-3 text-xs font-medium text-[#1a1a1a]/40 uppercase tracking-wider">Produto</th>
+                    <th className="text-left py-3 text-xs font-medium text-[#1a1a1a]/40 uppercase tracking-wider">Categoria</th>
+                    <th className="text-right py-3 text-xs font-medium text-[#1a1a1a]/40 uppercase tracking-wider">Preço</th>
+                    <th className="text-center py-3 text-xs font-medium text-[#1a1a1a]/40 uppercase tracking-wider">Visível</th>
+                    <th className="py-3" />
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-gray-50">
+                <tbody className="divide-y divide-black/5">
                   {rows.map((product) => (
-                    <tr key={product.id} className="hover:bg-gray-50 transition-colors">
-                      <td className="px-4 py-3 font-medium text-gray-900 max-w-[220px] truncate">
+                    <tr key={product.id} className="group">
+                      <td className="py-3.5 font-medium text-[#1a1a1a] max-w-[240px] truncate pr-4">
                         {product.name}
                       </td>
-                      <td className="px-4 py-3 text-gray-500">
+                      <td className="py-3.5 text-[#1a1a1a]/50 pr-4">
                         {product.categoryName ?? '—'}
                       </td>
-                      <td className="px-4 py-3 text-right text-gray-900 font-medium">
+                      <td className="py-3.5 text-right text-[#1a1a1a] font-medium pr-4">
                         R$ {Number(product.price).toFixed(2).replace('.', ',')}
                       </td>
-                      <td className="px-4 py-3 text-center">
+                      <td className="py-3.5 text-center pr-4">
                         <form action={toggleActive.bind(null, product.id, product.active)}>
-                          <button type="submit" title={product.active ? 'Desativar' : 'Ativar'} className="cursor-pointer">
+                          <button type="submit" className="cursor-pointer">
                             {product.active
-                              ? <ToggleRight size={24} className="text-green-500" />
-                              : <ToggleLeft size={24} className="text-gray-300" />
+                              ? <ToggleRight size={22} className="text-[#1a1a1a]" />
+                              : <ToggleLeft size={22} className="text-[#1a1a1a]/20" />
                             }
                           </button>
                         </form>
                       </td>
-                      <td className="px-4 py-3 text-right">
+                      <td className="py-3.5 text-right">
                         <Link
                           href={`/admin/produtos/${product.id}/editar`}
-                          className="inline-flex items-center gap-1 text-gray-400 hover:text-gray-900 transition-colors"
+                          className="text-[#1a1a1a]/30 hover:text-[#1a1a1a] transition-colors inline-block p-1"
                         >
-                          <Pencil size={15} />
+                          <Pencil size={14} />
                         </Link>
                       </td>
                     </tr>

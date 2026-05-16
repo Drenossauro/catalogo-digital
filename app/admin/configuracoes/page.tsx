@@ -12,8 +12,8 @@ export default async function ConfiguracoesPage() {
   return (
     <>
       <AdminNav />
-      <main className="max-w-5xl mx-auto px-4 py-8">
-        <h1 className="text-xl font-bold text-gray-900 mb-6">Configurações da loja</h1>
+      <main className="max-w-lg mx-auto px-4 py-6">
+        <h1 className="font-serif text-xl text-[#1a1a1a] mb-8">Configurações</h1>
         <SettingsForm settings={settings} />
       </main>
     </>

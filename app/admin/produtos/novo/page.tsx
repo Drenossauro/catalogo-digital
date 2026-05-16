@@ -13,14 +13,14 @@ export default async function NewProductPage() {
   return (
     <>
       <AdminNav />
-      <main className="max-w-5xl mx-auto px-4 py-8">
+      <main className="max-w-lg mx-auto px-4 py-6">
         <Link
           href="/admin/dashboard"
-          className="flex items-center gap-1 text-sm text-gray-500 hover:text-gray-900 mb-6 w-fit transition-colors"
+          className="flex items-center gap-1 text-sm text-[#1a1a1a]/40 hover:text-[#1a1a1a] mb-6 w-fit transition-colors"
         >
-          <ChevronLeft size={16} /> Voltar
+          <ChevronLeft size={15} /> Voltar
         </Link>
-        <h1 className="text-xl font-bold text-gray-900 mb-6">Novo produto</h1>
+        <h1 className="font-serif text-xl text-[#1a1a1a] mb-8">Novo produto</h1>
         <ProductForm categories={cats} />
       </main>
     </>
