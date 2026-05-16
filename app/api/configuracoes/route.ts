@@ -9,14 +9,14 @@ export async function POST(req: NextRequest) {
   const session = await auth()
   if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-  const { storeName, whatsappNumber, maxInstallments } = await req.json()
+  const { storeName, whatsappNumber, maxInstallments, theme, logoUrl } = await req.json()
 
   const existing = await db.select().from(storeSettings).limit(1)
 
   if (existing.length > 0) {
-    await db.update(storeSettings).set({ storeName, whatsappNumber, maxInstallments, updatedAt: new Date() })
+    await db.update(storeSettings).set({ storeName, whatsappNumber, maxInstallments, theme, logoUrl, updatedAt: new Date() })
   } else {
-    await db.insert(storeSettings).values({ storeName, whatsappNumber, maxInstallments })
+    await db.insert(storeSettings).values({ storeName, whatsappNumber, maxInstallments, theme, logoUrl })
   }
 
   return NextResponse.json({ ok: true })

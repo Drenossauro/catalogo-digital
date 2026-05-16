@@ -6,6 +6,7 @@ import { eq } from 'drizzle-orm'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { ChevronLeft } from 'lucide-react'
+import { getTheme } from '@/lib/themes'
 import CategoryPageClient from '@/components/catalog/CategoryPageClient'
 
 interface Props {
@@ -24,15 +25,19 @@ export default async function CategoryPage({ params }: Props) {
   if (!category) notFound()
 
   const settings = settingsRows[0]
+  const theme = getTheme(settings?.theme ?? 'prata')
   const catProducts = productRows
     .filter((p) => p.categoryId === category.id)
     .map((p) => ({ ...p, price: Number(p.price) }))
 
   return (
-    <div className="w-full min-h-screen bg-[#FAF8F5]">
-      <header className="sticky top-0 z-30 bg-[#FAF8F5]/90 backdrop-blur-md border-b border-black/5">
-        <div className="max-w-5xl mx-auto px-4 h-14 flex items-center gap-3">
-          <Link href="/" className="text-[#1a1a1a]/50 hover:text-[#1a1a1a] transition-colors">
+    <div className="w-full min-h-screen" style={{ background: theme.bg, color: theme.text }}>
+      <header
+        className="sticky top-0 z-30 backdrop-blur-md border-b"
+        style={{ background: theme.navBg, borderColor: theme.border, fontFamily: theme.fontSans }}
+      >
+        <div className="w-full px-4 h-14 flex items-center gap-3">
+          <Link href="/" className="transition-colors" style={{ color: theme.textMuted }}>
             <ChevronLeft size={20} strokeWidth={1.5} />
           </Link>
           <h1 className="font-serif text-xl tracking-wide">{category.name}</h1>
@@ -43,6 +48,7 @@ export default async function CategoryPage({ params }: Props) {
         products={catProducts}
         whatsappNumber={settings?.whatsappNumber ?? ''}
         maxInstallments={Number(settings?.maxInstallments ?? 1)}
+        theme={theme}
       />
     </div>
   )

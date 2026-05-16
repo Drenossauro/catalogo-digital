@@ -23,6 +23,8 @@ export const storeSettings = pgTable('store_settings', {
   storeName: text('store_name').notNull().default('Minha Loja'),
   whatsappNumber: text('whatsapp_number').notNull().default(''),
   maxInstallments: text('max_installments').notNull().default('1'),
+  theme: text('theme').notNull().default('prata'),
+  logoUrl: text('logo_url'),
   updatedAt: timestamp('updated_at').defaultNow(),
 })
 

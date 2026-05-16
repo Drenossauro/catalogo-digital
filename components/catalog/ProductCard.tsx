@@ -3,6 +3,7 @@
 import Image from 'next/image'
 import { Plus } from 'lucide-react'
 import { Product } from '@/types'
+import { useTheme } from './ThemeProvider'
 
 interface Props {
   product: Product
@@ -11,39 +12,43 @@ interface Props {
 }
 
 export default function ProductCard({ product, onAdd, size = 'md' }: Props) {
+  const theme = useTheme()
+
   return (
-    <div className="flex flex-col group">
-      {/* imagem */}
-      <div className={`relative bg-[#F0EDE8] overflow-hidden rounded-lg ${size === 'sm' ? 'aspect-[3/4] w-36' : 'aspect-[3/4]'}`}>
+    <div className="flex flex-col">
+      <div
+        className={`relative overflow-hidden rounded-lg ${size === 'sm' ? 'aspect-[3/4] w-36' : 'aspect-[3/4]'}`}
+        style={{ background: theme.surface }}
+      >
         {product.imageUrl ? (
           <Image
             src={product.imageUrl}
             alt={product.name}
             fill
-            className="object-cover transition-transform duration-500 group-hover:scale-105"
+            className="object-cover"
             sizes="(max-width: 640px) 50vw, 33vw"
           />
         ) : (
-          <div className="w-full h-full flex items-center justify-center">
-            <span className="text-3xl opacity-20">✦</span>
+          <div className="w-full h-full flex items-center justify-center" style={{ color: theme.textFaint }}>
+            <span className="text-3xl">✦</span>
           </div>
         )}
-        {/* botão add flutuante */}
         <button
-          onClick={(e) => { e.stopPropagation(); onAdd(product) }}
-          className="absolute bottom-2 right-2 w-8 h-8 bg-[#1a1a1a] text-white rounded-full flex items-center justify-center sm:opacity-0 sm:group-hover:opacity-100 transition-opacity cursor-pointer shadow-md"
+          onClick={() => onAdd(product)}
+          className="absolute bottom-2 right-2 w-8 h-8 rounded-full flex items-center justify-center shadow-md cursor-pointer transition-opacity sm:opacity-0 sm:group-hover:opacity-100"
+          style={{ background: theme.text, color: theme.bg }}
           aria-label="Adicionar"
         >
           <Plus size={14} />
         </button>
       </div>
 
-      {/* info */}
       <div className="pt-2 px-0.5">
-        <p className="text-xs text-[#1a1a1a]/70 leading-snug line-clamp-2">{product.name}</p>
-        <p className="text-sm font-semibold mt-0.5">R$ {product.price.toFixed(2).replace('.', ',')}</p>
+        <p className="text-xs leading-snug line-clamp-2" style={{ color: theme.textMuted }}>{product.name}</p>
+        <p className="text-sm font-semibold mt-0.5" style={{ color: theme.text }}>
+          R$ {product.price.toFixed(2).replace('.', ',')}
+        </p>
       </div>
-
     </div>
   )
 }

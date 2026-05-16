@@ -3,6 +3,8 @@
 import { useState } from 'react'
 import { ShoppingBag } from 'lucide-react'
 import { Product, CartItem } from '@/types'
+import { type ThemeConfig } from '@/lib/themes'
+import { ThemeProvider } from './ThemeProvider'
 import ProductCard from './ProductCard'
 import CartDrawer from './CartDrawer'
 
@@ -10,9 +12,10 @@ interface Props {
   products: Product[]
   whatsappNumber: string
   maxInstallments: number
+  theme: ThemeConfig
 }
 
-export default function CategoryPageClient({ products, whatsappNumber, maxInstallments }: Props) {
+export default function CategoryPageClient({ products, whatsappNumber, maxInstallments, theme }: Props) {
   const [cart, setCart] = useState<CartItem[]>([])
   const [cartOpen, setCartOpen] = useState(false)
 
@@ -38,7 +41,7 @@ export default function CategoryPageClient({ products, whatsappNumber, maxInstal
   const totalItems = cart.reduce((sum, i) => sum + i.quantity, 0)
 
   return (
-    <>
+    <ThemeProvider theme={theme}>
       <main className="max-w-5xl mx-auto px-4 py-6">
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-x-3 gap-y-6">
           {products.map((product) => (
@@ -50,7 +53,8 @@ export default function CategoryPageClient({ products, whatsappNumber, maxInstal
       {totalItems > 0 && (
         <button
           onClick={() => setCartOpen(true)}
-          className="fixed bottom-6 right-4 z-40 flex items-center gap-2 bg-[#1a1a1a] text-white px-4 py-3 rounded-full shadow-lg cursor-pointer active:scale-95 transition-transform"
+          className="fixed bottom-6 right-4 z-40 flex items-center gap-2 px-4 py-3 rounded-full shadow-lg cursor-pointer active:scale-95 transition-transform"
+          style={{ background: theme.text, color: theme.bg }}
         >
           <ShoppingBag size={16} strokeWidth={1.5} />
           <span className="text-sm font-medium">{totalItems} {totalItems === 1 ? 'item' : 'itens'}</span>
@@ -67,6 +71,6 @@ export default function CategoryPageClient({ products, whatsappNumber, maxInstal
           onChangeQty={changeQty}
         />
       )}
-    </>
+    </ThemeProvider>
   )
 }

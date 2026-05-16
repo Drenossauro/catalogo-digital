@@ -1,8 +1,8 @@
 @import "tailwindcss";
 
 @theme inline {
-  --font-sans: var(--font-sans);
-  --font-serif: var(--font-serif);
+  --font-sans: var(--font-jost);
+  --font-serif: var(--font-cormorant);
   --color-cream: #FAF8F5;
   --color-gold: #B8973A;
   --color-ink: #1a1a1a;
@@ -17,6 +17,5 @@ body {
   color: #1a1a1a;
 }
 
-/* esconde scrollbar mantendo funcionalidade */
 .no-scrollbar::-webkit-scrollbar { display: none; }
 .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
