@@ -156,7 +156,7 @@ export default function ProductForm({ categories, product }: Props) {
       </div>
 
       {/* Preço e Categoria */}
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div className="flex flex-col gap-1.5">
           <label className="text-sm font-medium text-gray-700">Preço (R$) *</label>
           <input

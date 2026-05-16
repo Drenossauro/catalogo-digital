@@ -23,7 +23,7 @@ export default function ProductCard({ product, onAdd }: Props) {
           />
         ) : (
           <div className="w-full h-full flex items-center justify-center text-gray-300">
-            <ShoppingBag size={48} />
+            <ShoppingBag size={40} />
           </div>
         )}
       </div>
@@ -31,15 +31,15 @@ export default function ProductCard({ product, onAdd }: Props) {
       <div className="p-3 flex flex-col gap-2 flex-1">
         <p className="text-sm font-medium text-gray-800 leading-snug line-clamp-2">{product.name}</p>
         {product.description && (
-          <p className="text-xs text-gray-500 line-clamp-2">{product.description}</p>
+          <p className="text-xs text-gray-400 line-clamp-2 hidden sm:block">{product.description}</p>
         )}
-        <div className="mt-auto flex items-center justify-between gap-2">
+        <div className="mt-auto flex flex-col gap-2">
           <span className="text-base font-bold text-gray-900">
             R$ {product.price.toFixed(2).replace('.', ',')}
           </span>
           <button
             onClick={() => onAdd(product)}
-            className="flex items-center gap-1 bg-gray-900 text-white text-xs font-medium px-3 py-1.5 rounded-full hover:bg-gray-700 active:scale-95 transition-all cursor-pointer"
+            className="w-full flex items-center justify-center gap-1.5 bg-gray-900 text-white text-xs font-medium py-2 rounded-xl hover:bg-gray-700 active:scale-95 transition-all cursor-pointer"
           >
             <ShoppingBag size={13} />
             Adicionar
