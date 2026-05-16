@@ -8,6 +8,7 @@ interface Settings {
   id: string
   storeName: string
   whatsappNumber: string
+  maxInstallments: string
 }
 
 interface Props {
@@ -18,6 +19,7 @@ export default function SettingsForm({ settings }: Props) {
   const router = useRouter()
   const [storeName, setStoreName] = useState(settings?.storeName ?? '')
   const [whatsappNumber, setWhatsappNumber] = useState(settings?.whatsappNumber ?? '')
+  const [maxInstallments, setMaxInstallments] = useState(settings?.maxInstallments ?? '1')
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -31,7 +33,7 @@ export default function SettingsForm({ settings }: Props) {
     const res = await fetch('/api/configuracoes', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ storeName, whatsappNumber }),
+      body: JSON.stringify({ storeName, whatsappNumber, maxInstallments }),
     })
 
     if (!res.ok) {
@@ -71,6 +73,23 @@ export default function SettingsForm({ settings }: Props) {
           placeholder="5511999999999"
         />
         <p className="text-xs text-gray-400">Código do país + DDD + número, só números. Ex: 5511999999999</p>
+      </div>
+
+      <div className="flex flex-col gap-1.5">
+        <label className="text-sm font-medium text-gray-700">Parcelamento máximo</label>
+        <select
+          value={maxInstallments}
+          onChange={(e) => setMaxInstallments(e.target.value)}
+          className="border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-gray-900 bg-white"
+        >
+          <option value="1">Somente à vista</option>
+          {[2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map((n) => (
+            <option key={n} value={String(n)}>Até {n}x</option>
+          ))}
+        </select>
+        <p className="text-xs text-gray-400">
+          O valor por parcela é calculado automaticamente dividindo o total do pedido.
+        </p>
       </div>
 
       {error && <p className="text-sm text-red-500">{error}</p>}

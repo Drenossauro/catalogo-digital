@@ -1,5 +1,6 @@
 'use client'
 
+import { useState } from 'react'
 import { X, Trash2, MessageCircle, ShoppingBag } from 'lucide-react'
 import { CartItem } from '@/types'
 import { buildWhatsAppMessage, buildWhatsAppUrl } from '@/lib/whatsapp'
@@ -7,26 +8,27 @@ import { buildWhatsAppMessage, buildWhatsAppUrl } from '@/lib/whatsapp'
 interface Props {
   items: CartItem[]
   whatsappNumber: string
+  maxInstallments: number
   onClose: () => void
   onRemove: (productId: string) => void
   onChangeQty: (productId: string, delta: number) => void
 }
 
-export default function CartDrawer({ items, whatsappNumber, onClose, onRemove, onChangeQty }: Props) {
+export default function CartDrawer({ items, whatsappNumber, maxInstallments, onClose, onRemove, onChangeQty }: Props) {
+  const [installments, setInstallments] = useState(1)
+
   const total = items.reduce((sum, { product, quantity }) => sum + product.price * quantity, 0)
+  const installmentValue = total / installments
 
   function handleSendWhatsApp() {
-    const message = buildWhatsAppMessage(items)
+    const message = buildWhatsAppMessage(items, installments, installmentValue)
     const url = buildWhatsAppUrl(message, whatsappNumber)
     window.open(url, '_blank')
   }
 
   return (
     <>
-      <div
-        className="fixed inset-0 bg-black/40 z-40 backdrop-blur-sm"
-        onClick={onClose}
-      />
+      <div className="fixed inset-0 bg-black/40 z-40 backdrop-blur-sm" onClick={onClose} />
       <div className="fixed right-0 top-0 h-full w-full max-w-sm bg-white z-50 flex flex-col shadow-2xl">
         <div className="flex items-center justify-between p-4 border-b border-gray-100">
           <div className="flex items-center gap-2">
@@ -84,6 +86,38 @@ export default function CartDrawer({ items, whatsappNumber, onClose, onRemove, o
                 <span>Total</span>
                 <span>R$ {total.toFixed(2).replace('.', ',')}</span>
               </div>
+
+              {maxInstallments > 1 && (
+                <div className="flex flex-col gap-1.5">
+                  <label className="text-xs font-medium text-gray-600">Parcelamento</label>
+                  <div className="grid grid-cols-3 gap-1.5">
+                    {Array.from({ length: maxInstallments }, (_, i) => i + 1).map((n) => (
+                      <button
+                        key={n}
+                        type="button"
+                        onClick={() => setInstallments(n)}
+                        className={`py-2 px-1 rounded-lg text-xs font-medium border transition-colors cursor-pointer text-center ${
+                          installments === n
+                            ? 'bg-gray-900 text-white border-gray-900'
+                            : 'bg-white text-gray-600 border-gray-200 hover:border-gray-400'
+                        }`}
+                      >
+                        {n === 1 ? (
+                          'À vista'
+                        ) : (
+                          <>
+                            {n}x de<br />
+                            <span className="font-semibold">
+                              R$ {(total / n).toFixed(2).replace('.', ',')}
+                            </span>
+                          </>
+                        )}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
               <button
                 onClick={handleSendWhatsApp}
                 className="w-full flex items-center justify-center gap-2 bg-green-500 hover:bg-green-600 active:scale-95 text-white font-semibold py-3 rounded-xl transition-all cursor-pointer"

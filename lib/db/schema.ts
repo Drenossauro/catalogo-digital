@@ -22,6 +22,7 @@ export const storeSettings = pgTable('store_settings', {
   id: uuid('id').primaryKey().defaultRandom(),
   storeName: text('store_name').notNull().default('Minha Loja'),
   whatsappNumber: text('whatsapp_number').notNull().default(''),
+  maxInstallments: text('max_installments').notNull().default('1'),
   updatedAt: timestamp('updated_at').defaultNow(),
 })
 

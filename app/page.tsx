@@ -34,6 +34,7 @@ export default async function CatalogPage() {
       categories={categoryRows}
       whatsappNumber={settings?.whatsappNumber ?? ''}
       storeName={settings?.storeName ?? 'Catálogo'}
+      maxInstallments={Number(settings?.maxInstallments ?? 1)}
     />
   )
 }

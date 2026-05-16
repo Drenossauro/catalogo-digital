@@ -12,9 +12,10 @@ interface Props {
   categories: Category[]
   whatsappNumber: string
   storeName: string
+  maxInstallments: number
 }
 
-export default function CatalogClient({ products, categories, whatsappNumber, storeName }: Props) {
+export default function CatalogClient({ products, categories, whatsappNumber, storeName, maxInstallments }: Props) {
   const [cart, setCart] = useState<CartItem[]>([])
   const [cartOpen, setCartOpen] = useState(false)
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
@@ -97,6 +98,7 @@ export default function CatalogClient({ products, categories, whatsappNumber, st
         <CartDrawer
           items={cart}
           whatsappNumber={whatsappNumber}
+          maxInstallments={maxInstallments}
           onClose={() => setCartOpen(false)}
           onRemove={removeFromCart}
           onChangeQty={changeQty}
