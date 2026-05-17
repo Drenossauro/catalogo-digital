@@ -1,8 +1,9 @@
 export const dynamic = 'force-dynamic'
 
+import { auth } from '@/lib/auth'
 import { db } from '@/lib/db'
 import { products, categories } from '@/lib/db/schema'
-import { eq } from 'drizzle-orm'
+import { eq, and } from 'drizzle-orm'
 import Link from 'next/link'
 import { Plus, Pencil, ToggleLeft, ToggleRight } from 'lucide-react'
 import AdminNav from '@/components/admin/AdminNav'
@@ -10,17 +11,23 @@ import ShareCard from '@/components/admin/ShareCard'
 import { revalidatePath } from 'next/cache'
 
 export default async function DashboardPage() {
-  const rows = await db
-    .select({
-      id: products.id,
-      name: products.name,
-      price: products.price,
-      active: products.active,
-      categoryName: categories.name,
-    })
-    .from(products)
-    .leftJoin(categories, eq(products.categoryId, categories.id))
-    .orderBy(products.createdAt)
+  const session = await auth()
+  const storeId = session?.user?.storeId ?? null
+
+  const rows = storeId
+    ? await db
+        .select({
+          id: products.id,
+          name: products.name,
+          price: products.price,
+          active: products.active,
+          categoryName: categories.name,
+        })
+        .from(products)
+        .leftJoin(categories, eq(products.categoryId, categories.id))
+        .where(eq(products.storeId, storeId))
+        .orderBy(products.createdAt)
+    : []
 
   async function toggleActive(id: string, active: boolean) {
     'use server'
@@ -45,7 +52,11 @@ export default async function DashboardPage() {
           </Link>
         </div>
 
-        {rows.length === 0 ? (
+        {!storeId ? (
+          <div className="text-center py-24 text-[#1a1a1a]/30 px-4">
+            <p className="text-sm">Sua conta não está associada a nenhuma loja.</p>
+          </div>
+        ) : rows.length === 0 ? (
           <div className="text-center py-24 text-[#1a1a1a]/30 px-4">
             <p className="text-sm">Nenhum produto cadastrado ainda.</p>
           </div>

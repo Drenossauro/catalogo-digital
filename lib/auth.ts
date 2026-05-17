@@ -34,4 +34,23 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     signIn: '/admin/login',
   },
   session: { strategy: 'jwt' },
+  callbacks: {
+    async jwt({ token, user }) {
+      if (user) {
+        const [dbUser] = await db
+          .select({ storeId: users.storeId, role: users.role })
+          .from(users)
+          .where(eq(users.id, user.id as string))
+          .limit(1)
+        token.storeId = dbUser?.storeId ?? null
+        token.role = dbUser?.role ?? 'admin'
+      }
+      return token
+    },
+    async session({ session, token }) {
+      session.user.storeId = (token.storeId as string | null) ?? null
+      session.user.role = (token.role as string) ?? 'admin'
+      return session
+    },
+  },
 })

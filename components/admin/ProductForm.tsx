@@ -19,9 +19,10 @@ type ProductRow = {
 interface Props {
   categories: Category[]
   product?: ProductRow
+  storeId?: string
 }
 
-export default function ProductForm({ categories, product }: Props) {
+export default function ProductForm({ categories, product, storeId }: Props) {
   const router = useRouter()
   const fileRef = useRef<HTMLInputElement>(null)
 
@@ -52,8 +53,21 @@ export default function ProductForm({ categories, product }: Props) {
     e.preventDefault()
     setError(null)
     setSaving(true)
-    const payload = { id: product?.id, name, description: description || null, price, categoryId: categoryId || null, active, imageUrl: imageUrl || null }
-    const res = await fetch('/api/produtos', { method: product ? 'PUT' : 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) })
+    const payload = {
+      id: product?.id,
+      name,
+      description: description || null,
+      price,
+      categoryId: categoryId || null,
+      active,
+      imageUrl: imageUrl || null,
+      storeId,
+    }
+    const res = await fetch('/api/produtos', {
+      method: product ? 'PUT' : 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    })
     if (!res.ok) { setError('Erro ao salvar produto.'); setSaving(false); return }
     router.push('/admin/dashboard')
     router.refresh()

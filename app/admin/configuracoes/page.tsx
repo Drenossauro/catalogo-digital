@@ -1,13 +1,31 @@
 export const dynamic = 'force-dynamic'
 
+import { auth } from '@/lib/auth'
 import { db } from '@/lib/db'
-import { storeSettings } from '@/lib/db/schema'
+import { stores } from '@/lib/db/schema'
+import { eq } from 'drizzle-orm'
 import AdminNav from '@/components/admin/AdminNav'
 import SettingsForm from '@/components/admin/SettingsForm'
 
 export default async function ConfiguracoesPage() {
-  const rows = await db.select().from(storeSettings).limit(1)
-  const settings = rows[0] ?? null
+  const session = await auth()
+  const storeId = session?.user?.storeId ?? null
+
+  const storeData = storeId
+    ? (await db.select().from(stores).where(eq(stores.id, storeId)).limit(1))[0] ?? null
+    : null
+
+  // Map stores table fields to SettingsForm interface
+  const settings = storeData
+    ? {
+        id: storeData.id,
+        storeName: storeData.name,
+        whatsappNumber: storeData.whatsappNumber,
+        maxInstallments: storeData.maxInstallments,
+        theme: storeData.theme,
+        logoUrl: storeData.logoUrl,
+      }
+    : null
 
   return (
     <>

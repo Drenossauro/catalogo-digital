@@ -1,8 +1,9 @@
 export const dynamic = 'force-dynamic'
 
+import { auth } from '@/lib/auth'
 import { db } from '@/lib/db'
 import { products, categories } from '@/lib/db/schema'
-import { eq } from 'drizzle-orm'
+import { eq, and } from 'drizzle-orm'
 import { notFound } from 'next/navigation'
 import AdminNav from '@/components/admin/AdminNav'
 import ProductForm from '@/components/admin/ProductForm'
@@ -15,13 +16,19 @@ interface Props {
 
 export default async function EditProductPage({ params }: Props) {
   const { id } = await params
+  const session = await auth()
+  const storeId = session?.user?.storeId ?? null
 
-  const [product, cats] = await Promise.all([
-    db.select().from(products).where(eq(products.id, id)).limit(1),
-    db.select().from(categories).orderBy(categories.name),
+  const [productRows, cats] = await Promise.all([
+    storeId
+      ? db.select().from(products).where(and(eq(products.id, id), eq(products.storeId, storeId))).limit(1)
+      : [],
+    storeId
+      ? db.select().from(categories).where(eq(categories.storeId, storeId)).orderBy(categories.name)
+      : [],
   ])
 
-  if (!product[0]) notFound()
+  if (!productRows[0]) notFound()
 
   return (
     <>
@@ -34,7 +41,7 @@ export default async function EditProductPage({ params }: Props) {
           <ChevronLeft size={15} /> Voltar
         </Link>
         <h1 className="font-serif text-xl text-[#1a1a1a] mb-8">Editar produto</h1>
-        <ProductForm categories={cats} product={product[0]} />
+        <ProductForm categories={cats} product={productRows[0]} storeId={storeId ?? undefined} />
       </main>
     </>
   )
