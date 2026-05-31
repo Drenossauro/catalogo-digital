@@ -41,8 +41,9 @@ const dmSans = DM_Sans({
 })
 
 export const metadata: Metadata = {
-  title: 'Catálogo Digital',
-  description: 'Catálogo de joias e acessórios',
+  title: 'Vitrine',
+  description: 'Seu catálogo digital',
+  icons: { icon: '/favicon.svg' },
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

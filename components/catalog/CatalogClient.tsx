@@ -4,11 +4,12 @@ import { useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { ShoppingBag, ChevronRight, Settings } from 'lucide-react'
-import { Product, Category, CartItem } from '@/types'
+import { Product, Category } from '@/types'
 import { type ThemeConfig } from '@/lib/themes'
 import { ThemeProvider } from './ThemeProvider'
 import ProductCard from './ProductCard'
 import CartDrawer from './CartDrawer'
+import { useCart } from '@/hooks/useCart'
 
 interface Props {
   products: Product[]
@@ -18,32 +19,13 @@ interface Props {
   maxInstallments: number
   theme: ThemeConfig
   logoUrl?: string | null
+  storeSlug?: string | null
 }
 
-export default function CatalogClient({ products, categories, whatsappNumber, storeName, maxInstallments, theme, logoUrl }: Props) {
-  const [cart, setCart] = useState<CartItem[]>([])
+export default function CatalogClient({ products, categories, whatsappNumber, storeName, maxInstallments, theme, logoUrl, storeSlug }: Props) {
+  const { cart, addToCart, removeFromCart, changeQty, totalItems } = useCart(storeSlug)
   const [cartOpen, setCartOpen] = useState(false)
 
-  function addToCart(product: Product) {
-    setCart((prev) => {
-      const existing = prev.find((i) => i.product.id === product.id)
-      if (existing) return prev.map((i) => i.product.id === product.id ? { ...i, quantity: i.quantity + 1 } : i)
-      return [...prev, { product, quantity: 1 }]
-    })
-  }
-
-  function removeFromCart(productId: string) {
-    setCart((prev) => prev.filter((i) => i.product.id !== productId))
-  }
-
-  function changeQty(productId: string, delta: number) {
-    setCart((prev) =>
-      prev.map((i) => i.product.id === productId ? { ...i, quantity: i.quantity + delta } : i)
-          .filter((i) => i.quantity > 0)
-    )
-  }
-
-  const totalItems = cart.reduce((sum, i) => sum + i.quantity, 0)
   const uncategorized = products.filter((p) => !p.categoryId)
 
   return (
@@ -92,33 +74,44 @@ export default function CatalogClient({ products, categories, whatsappNumber, st
             if (catProducts.length === 0) return null
             return (
               <section key={cat.id} className="mt-8">
-                <div className="flex items-center justify-between px-4 mb-3">
-                  <h2 className="font-serif text-xl" style={{ color: theme.text }}>{cat.name}</h2>
-                  <Link
-                    href={`/categoria/${cat.slug}`}
-                    className="flex items-center gap-0.5 text-xs transition-colors"
-                    style={{ color: theme.textMuted }}
-                  >
-                    Ver tudo <ChevronRight size={13} />
-                  </Link>
-                </div>
-                <div className="flex gap-3 overflow-x-auto no-scrollbar px-4 pb-1 group">
-                  {catProducts.map((product) => (
-                    <div key={product.id} className="shrink-0 w-36">
-                      <ProductCard product={product} onAdd={addToCart} size="sm" />
-                    </div>
-                  ))}
-                  {catProducts.length >= 3 && (
-                    <Link
-                      href={`/categoria/${cat.slug}`}
-                      className="shrink-0 w-28 flex flex-col items-center justify-center gap-2 rounded-lg border border-dashed transition-colors"
-                      style={{ borderColor: theme.textFaint, color: theme.textFaint }}
-                    >
-                      <ChevronRight size={18} />
-                      <span className="text-xs text-center leading-tight">Ver<br />tudo</span>
-                    </Link>
-                  )}
-                </div>
+                {(() => {
+                  const catHref = storeSlug
+                    ? `/loja/${storeSlug}/categoria/${cat.slug}`
+                    : `/categoria/${cat.slug}`
+                  return (
+                    <>
+                      <div className="flex items-center justify-between px-4 mb-3">
+                        <Link href={catHref} className="font-serif text-xl hover:opacity-70 transition-opacity" style={{ color: theme.text }}>
+                          {cat.name}
+                        </Link>
+                        <Link
+                          href={catHref}
+                          className="flex items-center gap-0.5 text-xs transition-colors"
+                          style={{ color: theme.textMuted }}
+                        >
+                          Ver tudo <ChevronRight size={13} />
+                        </Link>
+                      </div>
+                      <div className="flex gap-3 overflow-x-auto no-scrollbar px-4 pb-1">
+                        {catProducts.map((product) => (
+                          <div key={product.id} className="shrink-0 w-36">
+                            <ProductCard product={product} onAdd={addToCart} size="sm" />
+                          </div>
+                        ))}
+                        {catProducts.length >= 3 && (
+                          <Link
+                            href={catHref}
+                            className="shrink-0 w-28 flex flex-col items-center justify-center gap-2 rounded-lg border border-dashed transition-colors"
+                            style={{ borderColor: theme.textFaint, color: theme.textFaint }}
+                          >
+                            <ChevronRight size={18} />
+                            <span className="text-xs text-center leading-tight">Ver<br />tudo</span>
+                          </Link>
+                        )}
+                      </div>
+                    </>
+                  )
+                })()}
               </section>
             )
           })}

@@ -24,13 +24,16 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#FAF8F5] px-4">
       <div className="w-full max-w-sm">
+
         <div className="text-center mb-10">
-          <p className="font-serif text-3xl tracking-widest text-[#1a1a1a]">✦</p>
-          <h1 className="font-serif text-2xl mt-2 text-[#1a1a1a]">Área Admin</h1>
-          <p className="text-sm text-[#1a1a1a]/40 mt-1">Acesso restrito</p>
+          <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-[#1a1a1a] mb-5">
+            <span className="font-serif text-xl text-[#FAF8F5] leading-none">✦</span>
+          </div>
+          <h1 className="font-serif text-3xl tracking-wide text-[#1a1a1a]">Vitrine</h1>
+          <p className="text-sm text-[#1a1a1a]/40 mt-2 tracking-wide">Seu catálogo digital</p>
         </div>
 
-        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+        <form onSubmit={handleSubmit} className="flex flex-col gap-5">
           <div className="flex flex-col gap-1.5">
             <label className="text-xs font-medium text-[#1a1a1a]/50 uppercase tracking-wider">E-mail</label>
             <input
@@ -38,7 +41,7 @@ export default function LoginPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              className="border-b border-black/15 bg-transparent px-0 py-2 text-sm focus:outline-none focus:border-[#1a1a1a] transition-colors"
+              className="border-b border-black/15 bg-transparent px-0 py-2.5 text-sm focus:outline-none focus:border-[#1a1a1a] transition-colors"
               placeholder="seu@email.com"
             />
           </div>
@@ -49,7 +52,7 @@ export default function LoginPage() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              className="border-b border-black/15 bg-transparent px-0 py-2 text-sm focus:outline-none focus:border-[#1a1a1a] transition-colors"
+              className="border-b border-black/15 bg-transparent px-0 py-2.5 text-sm focus:outline-none focus:border-[#1a1a1a] transition-colors"
               placeholder="••••••••"
             />
           </div>
@@ -59,11 +62,13 @@ export default function LoginPage() {
           <button
             type="submit"
             disabled={loading}
-            className="mt-4 bg-[#1a1a1a] text-white py-3 rounded-none text-sm tracking-widest uppercase font-medium hover:bg-black disabled:opacity-40 transition-colors cursor-pointer"
+            className="mt-3 bg-[#1a1a1a] text-white py-3.5 text-sm tracking-widest uppercase font-medium hover:bg-black disabled:opacity-40 transition-colors cursor-pointer"
           >
             {loading ? '...' : 'Entrar'}
           </button>
         </form>
+
+        <p className="text-center text-xs text-[#1a1a1a]/20 mt-10">Vitrine · Acesso restrito</p>
       </div>
     </div>
   )

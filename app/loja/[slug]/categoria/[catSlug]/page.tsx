@@ -22,7 +22,13 @@ export default async function LojaCategoryPage({ params }: Props) {
     .where(eq(stores.slug, slug))
     .limit(1)
 
-  if (!store || !store.active) notFound()
+  if (!store) notFound()
+
+  const isSuspended =
+    store.subscriptionStatus === 'suspended' ||
+    (store.subscriptionStatus === 'trial' && store.subscriptionExpiresAt != null && store.subscriptionExpiresAt < new Date())
+
+  if (isSuspended) notFound()
 
   const [[category], productRows] = await Promise.all([
     db
@@ -63,6 +69,7 @@ export default async function LojaCategoryPage({ params }: Props) {
         whatsappNumber={store.whatsappNumber}
         maxInstallments={Number(store.maxInstallments ?? 1)}
         theme={theme}
+        storeSlug={slug}
       />
     </div>
   )

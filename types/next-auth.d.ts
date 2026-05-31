@@ -4,6 +4,7 @@ declare module 'next-auth' {
   interface Session {
     user: DefaultSession['user'] & {
       storeId: string | null
+      storeSlug: string | null
       role: string
     }
   }
@@ -12,6 +13,7 @@ declare module 'next-auth' {
 declare module 'next-auth/jwt' {
   interface JWT {
     storeId?: string | null
+    storeSlug?: string | null
     role?: string
   }
 }

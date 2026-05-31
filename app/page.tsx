@@ -1,13 +1,13 @@
 export const dynamic = 'force-dynamic'
 
 import { db } from '@/lib/db'
-import { products, categories, storeSettings } from '@/lib/db/schema'
+import { products, categories } from '@/lib/db/schema'
 import { eq } from 'drizzle-orm'
 import { getTheme } from '@/lib/themes'
 import CatalogClient from '@/components/catalog/CatalogClient'
 
 export default async function CatalogPage() {
-  const [productRows, categoryRows, settingsRows] = await Promise.all([
+  const [productRows, categoryRows] = await Promise.all([
     db
       .select({
         id: products.id,
@@ -23,22 +23,20 @@ export default async function CatalogPage() {
       .where(eq(products.active, true))
       .orderBy(products.createdAt),
     db.select().from(categories).orderBy(categories.name),
-    db.select().from(storeSettings).limit(1),
   ])
 
-  const settings = settingsRows[0]
-  const theme = getTheme(settings?.theme ?? 'prata')
+  const theme = getTheme('prata')
   const mapped = productRows.map((p) => ({ ...p, price: Number(p.price) }))
 
   return (
     <CatalogClient
       products={mapped}
       categories={categoryRows}
-      whatsappNumber={settings?.whatsappNumber ?? ''}
-      storeName={settings?.storeName ?? 'Catálogo'}
-      maxInstallments={Number(settings?.maxInstallments ?? 1)}
+      whatsappNumber=""
+      storeName="Catálogo"
+      maxInstallments={1}
       theme={theme}
-      logoUrl={settings?.logoUrl ?? null}
+      logoUrl={null}
     />
   )
 }

@@ -8,7 +8,8 @@ export const stores = pgTable('stores', {
   maxInstallments: text('max_installments').notNull().default('1'),
   theme: text('theme').notNull().default('prata'),
   logoUrl: text('logo_url'),
-  active: boolean('active').notNull().default(true),
+  subscriptionStatus: text('subscription_status').notNull().default('active'),
+  subscriptionExpiresAt: timestamp('subscription_expires_at'),
   createdAt: timestamp('created_at').defaultNow(),
   updatedAt: timestamp('updated_at').defaultNow(),
 })
@@ -31,16 +32,6 @@ export const products = pgTable('products', {
   imageUrl: text('image_url'),
   active: boolean('active').notNull().default(true),
   createdAt: timestamp('created_at').defaultNow(),
-})
-
-export const storeSettings = pgTable('store_settings', {
-  id: uuid('id').primaryKey().defaultRandom(),
-  storeName: text('store_name').notNull().default('Minha Loja'),
-  whatsappNumber: text('whatsapp_number').notNull().default(''),
-  maxInstallments: text('max_installments').notNull().default('1'),
-  theme: text('theme').notNull().default('prata'),
-  logoUrl: text('logo_url'),
-  updatedAt: timestamp('updated_at').defaultNow(),
 })
 
 export const users = pgTable('users', {

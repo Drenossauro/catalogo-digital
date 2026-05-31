@@ -35,6 +35,7 @@ export default function ProductForm({ categories, product, storeId }: Props) {
   const [uploading, setUploading] = useState(false)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [confirmDelete, setConfirmDelete] = useState(false)
 
   async function handleImageUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
@@ -74,7 +75,7 @@ export default function ProductForm({ categories, product, storeId }: Props) {
   }
 
   async function handleDelete() {
-    if (!product || !confirm('Tem certeza que deseja excluir este produto?')) return
+    if (!product) return
     await fetch(`/api/produtos?id=${product.id}`, { method: 'DELETE' })
     router.push('/admin/dashboard')
     router.refresh()
@@ -198,14 +199,35 @@ export default function ProductForm({ categories, product, storeId }: Props) {
         >
           {saving ? 'Salvando...' : product ? 'Salvar alterações' : 'Criar produto'}
         </button>
-        {product && (
+        {product && !confirmDelete && (
           <button
             type="button"
-            onClick={handleDelete}
-            className="w-full py-3 text-sm text-red-400 hover:text-red-500 transition-colors cursor-pointer border border-red-200/50 rounded"
+            onClick={() => setConfirmDelete(true)}
+            className="w-full py-3 text-sm text-[#1a1a1a]/30 hover:text-red-400 transition-colors cursor-pointer"
           >
             Excluir produto
           </button>
+        )}
+        {product && confirmDelete && (
+          <div className="border border-red-200 rounded p-4 flex flex-col gap-3">
+            <p className="text-sm text-[#1a1a1a] text-center">Excluir este produto permanentemente?</p>
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={handleDelete}
+                className="flex-1 py-2.5 bg-red-500 text-white text-sm font-medium hover:bg-red-600 transition-colors cursor-pointer rounded"
+              >
+                Sim, excluir
+              </button>
+              <button
+                type="button"
+                onClick={() => setConfirmDelete(false)}
+                className="flex-1 py-2.5 border border-black/15 text-sm text-[#1a1a1a]/60 hover:text-[#1a1a1a] transition-colors cursor-pointer rounded"
+              >
+                Cancelar
+              </button>
+            </div>
+          </div>
         )}
       </div>
     </form>

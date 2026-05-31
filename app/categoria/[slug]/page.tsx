@@ -1,7 +1,7 @@
 export const dynamic = 'force-dynamic'
 
 import { db } from '@/lib/db'
-import { products, categories, storeSettings } from '@/lib/db/schema'
+import { products, categories } from '@/lib/db/schema'
 import { eq } from 'drizzle-orm'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
@@ -16,16 +16,14 @@ interface Props {
 export default async function CategoryPage({ params }: Props) {
   const { slug } = await params
 
-  const [[category], settingsRows, productRows] = await Promise.all([
+  const [[category], productRows] = await Promise.all([
     db.select().from(categories).where(eq(categories.slug, slug)).limit(1),
-    db.select().from(storeSettings).limit(1),
     db.select().from(products).where(eq(products.active, true)).orderBy(products.createdAt),
   ])
 
   if (!category) notFound()
 
-  const settings = settingsRows[0]
-  const theme = getTheme(settings?.theme ?? 'prata')
+  const theme = getTheme('prata')
   const catProducts = productRows
     .filter((p) => p.categoryId === category.id)
     .map((p) => ({ ...p, price: Number(p.price) }))
@@ -46,8 +44,8 @@ export default async function CategoryPage({ params }: Props) {
 
       <CategoryPageClient
         products={catProducts}
-        whatsappNumber={settings?.whatsappNumber ?? ''}
-        maxInstallments={Number(settings?.maxInstallments ?? 1)}
+        whatsappNumber=""
+        maxInstallments={1}
         theme={theme}
       />
     </div>

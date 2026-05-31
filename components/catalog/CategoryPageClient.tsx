@@ -2,43 +2,24 @@
 
 import { useState } from 'react'
 import { ShoppingBag } from 'lucide-react'
-import { Product, CartItem } from '@/types'
+import { Product } from '@/types'
 import { type ThemeConfig } from '@/lib/themes'
 import { ThemeProvider } from './ThemeProvider'
 import ProductCard from './ProductCard'
 import CartDrawer from './CartDrawer'
+import { useCart } from '@/hooks/useCart'
 
 interface Props {
   products: Product[]
   whatsappNumber: string
   maxInstallments: number
   theme: ThemeConfig
+  storeSlug?: string | null
 }
 
-export default function CategoryPageClient({ products, whatsappNumber, maxInstallments, theme }: Props) {
-  const [cart, setCart] = useState<CartItem[]>([])
+export default function CategoryPageClient({ products, whatsappNumber, maxInstallments, theme, storeSlug }: Props) {
+  const { cart, addToCart, removeFromCart, changeQty, totalItems } = useCart(storeSlug)
   const [cartOpen, setCartOpen] = useState(false)
-
-  function addToCart(product: Product) {
-    setCart((prev) => {
-      const existing = prev.find((i) => i.product.id === product.id)
-      if (existing) return prev.map((i) => i.product.id === product.id ? { ...i, quantity: i.quantity + 1 } : i)
-      return [...prev, { product, quantity: 1 }]
-    })
-  }
-
-  function removeFromCart(productId: string) {
-    setCart((prev) => prev.filter((i) => i.product.id !== productId))
-  }
-
-  function changeQty(productId: string, delta: number) {
-    setCart((prev) =>
-      prev.map((i) => i.product.id === productId ? { ...i, quantity: i.quantity + delta } : i)
-          .filter((i) => i.quantity > 0)
-    )
-  }
-
-  const totalItems = cart.reduce((sum, i) => sum + i.quantity, 0)
 
   return (
     <ThemeProvider theme={theme}>

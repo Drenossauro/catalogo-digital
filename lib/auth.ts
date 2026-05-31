@@ -2,7 +2,7 @@ import NextAuth from 'next-auth'
 import Credentials from 'next-auth/providers/credentials'
 import { compare } from 'bcryptjs'
 import { db } from '@/lib/db'
-import { users } from '@/lib/db/schema'
+import { users, stores } from '@/lib/db/schema'
 import { eq } from 'drizzle-orm'
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
@@ -44,11 +44,23 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           .limit(1)
         token.storeId = dbUser?.storeId ?? null
         token.role = dbUser?.role ?? 'admin'
+
+        if (dbUser?.storeId) {
+          const [store] = await db
+            .select({ slug: stores.slug })
+            .from(stores)
+            .where(eq(stores.id, dbUser.storeId))
+            .limit(1)
+          token.storeSlug = store?.slug ?? null
+        } else {
+          token.storeSlug = null
+        }
       }
       return token
     },
     async session({ session, token }) {
       session.user.storeId = (token.storeId as string | null) ?? null
+      session.user.storeSlug = (token.storeSlug as string | null) ?? null
       session.user.role = (token.role as string) ?? 'admin'
       return session
     },

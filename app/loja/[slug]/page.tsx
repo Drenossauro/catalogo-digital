@@ -6,9 +6,17 @@ import { eq, and } from 'drizzle-orm'
 import { notFound } from 'next/navigation'
 import { getTheme } from '@/lib/themes'
 import CatalogClient from '@/components/catalog/CatalogClient'
+import SuspendedPage from '@/components/catalog/SuspendedPage'
+import type { Metadata } from 'next'
 
 interface Props {
   params: Promise<{ slug: string }>
+}
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { slug } = await params
+  const [store] = await db.select({ name: stores.name }).from(stores).where(eq(stores.slug, slug)).limit(1)
+  return { title: store ? `${store.name} · Vitrine` : 'Vitrine' }
 }
 
 export default async function LojaPage({ params }: Props) {
@@ -20,7 +28,13 @@ export default async function LojaPage({ params }: Props) {
     .where(eq(stores.slug, slug))
     .limit(1)
 
-  if (!store || !store.active) notFound()
+  if (!store) notFound()
+
+  const isSuspended =
+    store.subscriptionStatus === 'suspended' ||
+    (store.subscriptionStatus === 'trial' && store.subscriptionExpiresAt != null && store.subscriptionExpiresAt < new Date())
+
+  if (isSuspended) return <SuspendedPage storeName={store.name} />
 
   const [productRows, categoryRows] = await Promise.all([
     db
@@ -56,6 +70,7 @@ export default async function LojaPage({ params }: Props) {
       maxInstallments={Number(store.maxInstallments ?? 1)}
       theme={theme}
       logoUrl={store.logoUrl ?? null}
+      storeSlug={slug}
     />
   )
 }
