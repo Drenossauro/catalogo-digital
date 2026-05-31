@@ -8,6 +8,7 @@ import {
   DM_Sans,
 } from 'next/font/google'
 import './globals.css'
+import Providers from '@/components/Providers'
 
 const cormorant = Cormorant_Garamond({
   variable: '--font-cormorant',
@@ -59,7 +60,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="pt-BR" className={`${fontVars} h-full`}>
       <body className="min-h-full flex flex-col bg-[#FAF8F5] text-[#1a1a1a] font-sans antialiased">
-        {children}
+        <Providers>{children}</Providers>
       </body>
     </html>
   )
