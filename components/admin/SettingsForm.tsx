@@ -120,7 +120,8 @@ export default function SettingsForm({ settings }: Props) {
         <input
           type="text"
           value={whatsappNumber}
-          onChange={(e) => setWhatsappNumber(e.target.value.replace(/\D/g, ''))}
+          onChange={(e) => setWhatsappNumber(e.target.value.replace(/\D/g, '').slice(0, 13))}
+          maxLength={13}
           required
           className="border-b border-black/15 bg-transparent px-0 py-3 text-sm focus:outline-none focus:border-[#1a1a1a] transition-colors"
           placeholder="5567992486473"

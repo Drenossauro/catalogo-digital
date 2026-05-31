@@ -67,7 +67,8 @@ export default function EditLojaForm({ store }: Props) {
         <input
           type="text"
           value={whatsappNumber}
-          onChange={(e) => setWhatsappNumber(e.target.value.replace(/\D/g, ''))}
+          onChange={(e) => setWhatsappNumber(e.target.value.replace(/\D/g, '').slice(0, 13))}
+          maxLength={13}
           className="border-b border-white/15 bg-transparent px-0 py-2.5 text-sm text-white focus:outline-none focus:border-white transition-colors"
           placeholder="5567999999999"
         />
