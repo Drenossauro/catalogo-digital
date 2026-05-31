@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { Check } from 'lucide-react'
 import { THEMES } from '@/lib/themes'
 
 export default function NovaLojaForm() {
@@ -69,7 +70,7 @@ export default function NovaLojaForm() {
 
       {/* Nome da loja */}
       <div className="flex flex-col gap-1.5">
-        <label className="text-xs font-medium text-[#1a1a1a]/50 uppercase tracking-wider">
+        <label className="text-xs font-medium text-white/40 uppercase tracking-wider">
           Nome da loja *
         </label>
         <input
@@ -77,87 +78,103 @@ export default function NovaLojaForm() {
           value={name}
           onChange={(e) => handleNameChange(e.target.value)}
           required
-          className="border-b border-black/15 bg-transparent px-0 py-3 text-sm focus:outline-none focus:border-[#1a1a1a] transition-colors"
+          className="border-b border-white/15 bg-transparent px-0 py-2.5 text-sm text-white focus:outline-none focus:border-white transition-colors placeholder:text-white/20"
           placeholder="Ex: Pratas da Nay"
         />
       </div>
 
       {/* Slug */}
       <div className="flex flex-col gap-1.5">
-        <label className="text-xs font-medium text-[#1a1a1a]/50 uppercase tracking-wider">
+        <label className="text-xs font-medium text-white/40 uppercase tracking-wider">
           Slug / URL *
         </label>
-        <div className="flex items-center border-b border-black/15 py-3">
-          <span className="text-xs text-[#1a1a1a]/40 shrink-0">catalogo.com/loja/</span>
+        <div className="flex items-center border-b border-white/15 py-2.5">
+          <span className="text-xs text-white/30 shrink-0">vitrine.com/loja/</span>
           <input
             type="text"
             value={slug}
             onChange={(e) => handleSlugChange(e.target.value)}
             required
             pattern="[a-z0-9-]+"
-            className="flex-1 bg-transparent text-sm focus:outline-none pl-0.5"
+            className="flex-1 bg-transparent text-sm text-white focus:outline-none pl-0.5 placeholder:text-white/20"
             placeholder="pratas-da-nay"
           />
         </div>
-        <p className="text-xs text-[#1a1a1a]/30">Apenas letras minúsculas, números e hífens.</p>
+        <p className="text-xs text-white/20">Apenas letras minúsculas, números e hífens.</p>
       </div>
 
       {/* WhatsApp */}
       <div className="flex flex-col gap-1.5">
-        <label className="text-xs font-medium text-[#1a1a1a]/50 uppercase tracking-wider">
+        <label className="text-xs font-medium text-white/40 uppercase tracking-wider">
           WhatsApp
         </label>
         <input
           type="text"
           value={whatsappNumber}
           onChange={(e) => setWhatsappNumber(e.target.value.replace(/\D/g, ''))}
-          className="border-b border-black/15 bg-transparent px-0 py-3 text-sm focus:outline-none focus:border-[#1a1a1a] transition-colors"
+          className="border-b border-white/15 bg-transparent px-0 py-2.5 text-sm text-white focus:outline-none focus:border-white transition-colors placeholder:text-white/20"
           placeholder="5567992486473"
         />
       </div>
 
       {/* Parcelamento */}
       <div className="flex flex-col gap-1.5">
-        <label className="text-xs font-medium text-[#1a1a1a]/50 uppercase tracking-wider">
+        <label className="text-xs font-medium text-white/40 uppercase tracking-wider">
           Parcelamento máximo
         </label>
         <select
           value={maxInstallments}
           onChange={(e) => setMaxInstallments(e.target.value)}
-          className="border-b border-black/15 bg-transparent px-0 py-3 text-sm focus:outline-none focus:border-[#1a1a1a] transition-colors appearance-none cursor-pointer"
+          className="border-b border-white/15 bg-transparent px-0 py-2.5 text-sm text-white focus:outline-none focus:border-white transition-colors appearance-none cursor-pointer"
         >
-          <option value="1">Somente à vista</option>
+          <option value="1" className="bg-[#0F0F0F]">Somente à vista</option>
           {[2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map((n) => (
-            <option key={n} value={String(n)}>Até {n}x</option>
+            <option key={n} value={String(n)} className="bg-[#0F0F0F]">Até {n}x</option>
           ))}
         </select>
       </div>
 
       {/* Tema */}
-      <div className="flex flex-col gap-1.5">
-        <label className="text-xs font-medium text-[#1a1a1a]/50 uppercase tracking-wider">
-          Tema
-        </label>
-        <select
-          value={theme}
-          onChange={(e) => setTheme(e.target.value)}
-          className="border-b border-black/15 bg-transparent px-0 py-3 text-sm focus:outline-none focus:border-[#1a1a1a] transition-colors appearance-none cursor-pointer"
-        >
+      <div className="flex flex-col gap-3">
+        <span className="text-xs font-medium text-white/40 uppercase tracking-wider">Tema</span>
+        <div className="grid grid-cols-2 gap-3">
           {THEMES.map((t) => (
-            <option key={t.id} value={t.id}>{t.name}</option>
+            <button
+              key={t.id}
+              type="button"
+              onClick={() => setTheme(t.id)}
+              className="relative text-left rounded-xl overflow-hidden transition-all cursor-pointer"
+              style={{
+                background: t.bg,
+                border: theme === t.id ? `2px solid ${t.accent}` : `2px solid transparent`,
+              }}
+            >
+              <div className="p-3">
+                <div className="flex items-center gap-1.5 mb-2">
+                  <div className="w-3 h-3 rounded-full" style={{ background: t.bg, border: `2px solid ${t.text}` }} />
+                  <div className="w-3 h-3 rounded-full" style={{ background: t.accent }} />
+                </div>
+                <p className="text-sm leading-tight font-medium" style={{ color: t.text, fontFamily: t.fontSerif }}>{t.name}</p>
+              </div>
+              {theme === t.id && (
+                <div className="absolute top-2 right-2 w-5 h-5 rounded-full flex items-center justify-center" style={{ background: t.accent }}>
+                  <Check size={11} color={t.bg} strokeWidth={2.5} />
+                </div>
+              )}
+            </button>
           ))}
-        </select>
+        </div>
       </div>
 
       {/* Divisor */}
-      <div className="border-t border-black/8 pt-4">
-        <p className="text-xs font-medium text-[#1a1a1a]/50 uppercase tracking-wider mb-6">
+      <div className="border-t border-white/8 pt-4">
+        <p className="text-xs font-medium text-white/40 uppercase tracking-wider mb-6">
           Acesso do admin
         </p>
 
         {/* E-mail */}
         <div className="flex flex-col gap-1.5 mb-8">
-          <label className="text-xs font-medium text-[#1a1a1a]/50 uppercase tracking-wider">
+          <label className="text-xs font-medium text-white/40 uppercase tracking-wider">
             E-mail do admin *
           </label>
           <input
@@ -165,14 +182,14 @@ export default function NovaLojaForm() {
             value={adminEmail}
             onChange={(e) => setAdminEmail(e.target.value)}
             required
-            className="border-b border-black/15 bg-transparent px-0 py-3 text-sm focus:outline-none focus:border-[#1a1a1a] transition-colors"
+            className="border-b border-white/15 bg-transparent px-0 py-2.5 text-sm text-white focus:outline-none focus:border-white transition-colors placeholder:text-white/20"
             placeholder="admin@loja.com"
           />
         </div>
 
         {/* Senha */}
         <div className="flex flex-col gap-1.5">
-          <label className="text-xs font-medium text-[#1a1a1a]/50 uppercase tracking-wider">
+          <label className="text-xs font-medium text-white/40 uppercase tracking-wider">
             Senha do admin *
           </label>
           <input
@@ -181,7 +198,7 @@ export default function NovaLojaForm() {
             onChange={(e) => setAdminPassword(e.target.value)}
             required
             minLength={8}
-            className="border-b border-black/15 bg-transparent px-0 py-3 text-sm focus:outline-none focus:border-[#1a1a1a] transition-colors"
+            className="border-b border-white/15 bg-transparent px-0 py-2.5 text-sm text-white focus:outline-none focus:border-white transition-colors placeholder:text-white/20"
             placeholder="Mínimo 8 caracteres"
           />
         </div>
@@ -192,7 +209,7 @@ export default function NovaLojaForm() {
       <button
         type="submit"
         disabled={saving}
-        className="w-full bg-[#1a1a1a] text-white py-3.5 text-sm tracking-widest uppercase font-medium hover:bg-black disabled:opacity-40 transition-colors cursor-pointer"
+        className="w-full bg-white text-[#0F0F0F] py-3.5 text-sm tracking-widest uppercase font-medium hover:bg-white/90 disabled:opacity-40 transition-colors cursor-pointer"
       >
         {saving ? 'Criando...' : 'Criar loja'}
       </button>
