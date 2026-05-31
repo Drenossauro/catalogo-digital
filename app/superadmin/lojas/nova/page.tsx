@@ -10,11 +10,11 @@ export default function NovaLojaPage() {
       <main className="w-full px-4 py-6">
         <Link
           href="/superadmin/lojas"
-          className="flex items-center gap-1 text-sm text-[#1a1a1a]/40 hover:text-[#1a1a1a] mb-6 w-fit transition-colors"
+          className="flex items-center gap-1 text-sm text-white/30 hover:text-white mb-6 w-fit transition-colors"
         >
           <ChevronLeft size={15} /> Voltar
         </Link>
-        <h1 className="font-serif text-xl text-[#1a1a1a] mb-8">Nova loja</h1>
+        <h1 className="font-serif text-xl text-white mb-8">Nova loja</h1>
         <NovaLojaForm />
       </main>
     </>
