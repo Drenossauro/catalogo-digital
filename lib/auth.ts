@@ -35,12 +35,14 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   },
   session: { strategy: 'jwt' },
   callbacks: {
-    async jwt({ token, user }) {
-      if (user) {
+    async jwt({ token, user, trigger }) {
+      // Refresh role/storeId from DB on login OR when session is updated
+      if (user || trigger === 'update' || !token.role) {
+        const userId = (user?.id ?? token.sub) as string
         const [dbUser] = await db
           .select({ storeId: users.storeId, role: users.role })
           .from(users)
-          .where(eq(users.id, user.id as string))
+          .where(eq(users.id, userId))
           .limit(1)
         token.storeId = dbUser?.storeId ?? null
         token.role = dbUser?.role ?? 'admin'
