@@ -5,5 +5,10 @@ export const metadata: Metadata = {
 }
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
-  return <>{children}</>
+  return (
+    // pb-16 garante que o conteúdo não fique atrás da bottom tab bar no mobile
+    <div className="pb-16 sm:pb-0">
+      {children}
+    </div>
+  )
 }

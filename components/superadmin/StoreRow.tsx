@@ -73,70 +73,72 @@ export default function StoreRow({ store }: Props) {
     : null
 
   return (
-    <div className="flex items-center gap-4 px-4 py-4">
-      <div className="flex-1 min-w-0">
-        <div className="flex items-center gap-2 flex-wrap">
-          <p className="text-sm font-medium text-white">{store.name}</p>
-          <span className="text-xs text-white/25 font-mono">/loja/{store.slug}</span>
-          <StatusBadge status={status} expiresAt={expiresAt} />
+    <div className="px-4 py-5 border-b border-white/8">
+      {/* Info */}
+      <div className="flex items-start justify-between gap-2 mb-4">
+        <div className="min-w-0">
+          <div className="flex items-center gap-2 flex-wrap mb-1">
+            <p className="text-sm font-medium text-white">{store.name}</p>
+            <StatusBadge status={status} expiresAt={expiresAt} />
+          </div>
+          <p className="text-xs text-white/40 truncate">{store.adminEmail ?? 'Sem admin'}</p>
+          <p className="text-xs text-white/25 font-mono mt-0.5">/loja/{store.slug}</p>
         </div>
-        <div className="flex items-center gap-3 mt-1 flex-wrap">
-          <p className="text-xs text-white/40">{store.adminEmail ?? 'Sem admin'}</p>
-          {expiresFormatted && (
-            <p className="text-xs text-white/25">vence {expiresFormatted}</p>
-          )}
-          {store.createdAt && (
-            <p className="text-xs text-white/20">
-              {new Date(store.createdAt).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' })}
-            </p>
-          )}
-        </div>
+        {expiresFormatted && (
+          <p className="text-xs text-white/25 shrink-0">vence {expiresFormatted}</p>
+        )}
       </div>
 
-      <div className="flex items-center gap-1 shrink-0">
+      {/* Actions — labels visíveis, tap targets grandes */}
+      <div className="flex items-center gap-1 -ml-2">
         <Link
           href={`/loja/${store.slug}`}
           target="_blank"
-          className="text-white/25 hover:text-white transition-colors p-1.5"
+          className="flex items-center gap-1.5 px-3 py-2.5 text-xs text-white/35 hover:text-white transition-colors"
           title="Ver catálogo"
         >
-          <ExternalLink size={15} />
+          <ExternalLink size={16} strokeWidth={1.5} />
+          <span>Ver</span>
         </Link>
 
         <Link
           href={`/superadmin/lojas/${store.id}`}
-          className="text-white/25 hover:text-white transition-colors p-1.5"
+          className="flex items-center gap-1.5 px-3 py-2.5 text-xs text-white/35 hover:text-white transition-colors"
           title="Editar loja"
         >
-          <Pencil size={15} />
+          <Pencil size={16} strokeWidth={1.5} />
+          <span>Editar</span>
         </Link>
 
         <button
           onClick={() => runAction('renew')}
           disabled={loading}
-          className="text-white/25 hover:text-green-400 transition-colors p-1.5 cursor-pointer disabled:opacity-30"
+          className="flex items-center gap-1.5 px-3 py-2.5 text-xs text-white/35 hover:text-green-400 transition-colors cursor-pointer disabled:opacity-30"
           title="Renovar +30 dias"
         >
-          <RefreshCw size={15} />
+          <RefreshCw size={16} strokeWidth={1.5} />
+          <span>Renovar</span>
         </button>
 
         {status !== 'suspended' ? (
           <button
             onClick={() => runAction('suspend')}
             disabled={loading}
-            className="text-white/25 hover:text-red-400 transition-colors p-1.5 cursor-pointer disabled:opacity-30"
+            className="flex items-center gap-1.5 px-3 py-2.5 text-xs text-white/35 hover:text-red-400 transition-colors cursor-pointer disabled:opacity-30"
             title="Suspender"
           >
-            <PauseCircle size={15} />
+            <PauseCircle size={16} strokeWidth={1.5} />
+            <span>Suspender</span>
           </button>
         ) : (
           <button
             onClick={() => runAction('reactivate')}
             disabled={loading}
-            className="text-white/25 hover:text-green-400 transition-colors p-1.5 cursor-pointer disabled:opacity-30"
+            className="flex items-center gap-1.5 px-3 py-2.5 text-xs text-white/35 hover:text-green-400 transition-colors cursor-pointer disabled:opacity-30"
             title="Reativar"
           >
-            <PlayCircle size={15} />
+            <PlayCircle size={16} strokeWidth={1.5} />
+            <span>Ativar</span>
           </button>
         )}
       </div>

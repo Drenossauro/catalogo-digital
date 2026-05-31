@@ -62,27 +62,22 @@ export default async function DashboardPage() {
             {/* Mobile: lista full-bleed */}
             <div className="flex flex-col sm:hidden border-t border-black/8">
               {rows.map((product) => (
-                <div key={product.id} className="flex items-center gap-3 px-4 py-4 border-b border-black/5">
-                  <div className="flex-1 min-w-0">
+                <div key={product.id} className="flex items-center gap-2 px-4 py-5 border-b border-black/5">
+                  {/* Tap no texto → editar */}
+                  <Link href={`/admin/produtos/${product.id}/editar`} className="flex-1 min-w-0">
                     <p className="text-sm font-medium text-[#1a1a1a] truncate">{product.name}</p>
                     <p className="text-xs text-[#1a1a1a]/40 mt-0.5">
                       {product.categoryName ?? 'Sem categoria'} · R$ {Number(product.price).toFixed(2).replace('.', ',')}
                     </p>
-                  </div>
+                  </Link>
                   <form action={toggleActive.bind(null, product.id, product.active)}>
-                    <button type="submit" className="cursor-pointer p-1.5">
+                    <button type="submit" className="cursor-pointer p-2.5 -mr-1">
                       {product.active
-                        ? <ToggleRight size={28} className="text-[#1a1a1a]" />
-                        : <ToggleLeft size={28} className="text-[#1a1a1a]/20" />
+                        ? <ToggleRight size={32} className="text-[#1a1a1a]" />
+                        : <ToggleLeft size={32} className="text-[#1a1a1a]/20" />
                       }
                     </button>
                   </form>
-                  <Link
-                    href={`/admin/produtos/${product.id}/editar`}
-                    className="text-[#1a1a1a]/30 hover:text-[#1a1a1a] transition-colors p-1.5"
-                  >
-                    <Pencil size={16} />
-                  </Link>
                 </div>
               ))}
             </div>

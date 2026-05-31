@@ -96,7 +96,7 @@ export default function CategoriasManager({ initialCategories }: Props) {
       ) : (
         <div className="border-t border-black/8 divide-y divide-black/5">
           {categories.map((cat) => (
-            <div key={cat.id} className="flex items-center gap-3 py-4">
+            <div key={cat.id} className="flex items-center gap-2 py-5">
               {editingId === cat.id ? (
                 <>
                   <input
@@ -105,22 +105,22 @@ export default function CategoriasManager({ initialCategories }: Props) {
                     onChange={(e) => setEditName(e.target.value)}
                     onKeyDown={(e) => { if (e.key === 'Enter') handleRename(cat.id); if (e.key === 'Escape') setEditingId(null) }}
                     autoFocus
-                    className="flex-1 border-b border-[#1a1a1a] bg-transparent px-0 py-1 text-sm focus:outline-none"
+                    className="flex-1 border-b border-[#1a1a1a] bg-transparent px-0 py-2 text-sm focus:outline-none"
                   />
-                  <button onClick={() => handleRename(cat.id)} className="text-[#1a1a1a]/50 hover:text-[#1a1a1a] cursor-pointer transition-colors p-1">
-                    <Check size={15} />
+                  <button onClick={() => handleRename(cat.id)} className="text-[#1a1a1a]/50 hover:text-[#1a1a1a] cursor-pointer transition-colors p-3">
+                    <Check size={18} />
                   </button>
-                  <button onClick={() => setEditingId(null)} className="text-[#1a1a1a]/30 hover:text-[#1a1a1a] cursor-pointer transition-colors p-1">
-                    <X size={15} />
+                  <button onClick={() => setEditingId(null)} className="text-[#1a1a1a]/30 hover:text-[#1a1a1a] cursor-pointer transition-colors p-3">
+                    <X size={18} />
                   </button>
                 </>
               ) : deletingId === cat.id ? (
                 <>
                   <p className="flex-1 text-sm text-[#1a1a1a]">Excluir <strong>{cat.name}</strong>?</p>
-                  <button onClick={() => handleDelete(cat.id)} className="text-xs text-red-500 hover:text-red-600 cursor-pointer transition-colors px-2 py-1 border border-red-200 rounded">
+                  <button onClick={() => handleDelete(cat.id)} className="text-sm text-red-500 hover:text-red-600 cursor-pointer transition-colors px-4 py-2.5 border border-red-200 rounded">
                     Excluir
                   </button>
-                  <button onClick={() => setDeletingId(null)} className="text-xs text-[#1a1a1a]/40 hover:text-[#1a1a1a] cursor-pointer transition-colors px-2 py-1">
+                  <button onClick={() => setDeletingId(null)} className="text-sm text-[#1a1a1a]/40 hover:text-[#1a1a1a] cursor-pointer transition-colors px-4 py-2.5">
                     Cancelar
                   </button>
                 </>
@@ -134,15 +134,15 @@ export default function CategoriasManager({ initialCategories }: Props) {
                   </div>
                   <button
                     onClick={() => { setEditingId(cat.id); setEditName(cat.name) }}
-                    className="text-[#1a1a1a]/30 hover:text-[#1a1a1a] transition-colors cursor-pointer p-1.5"
+                    className="text-[#1a1a1a]/30 hover:text-[#1a1a1a] transition-colors cursor-pointer p-3"
                   >
-                    <Pencil size={14} />
+                    <Pencil size={18} />
                   </button>
                   <button
                     onClick={() => setDeletingId(cat.id)}
-                    className="text-[#1a1a1a]/30 hover:text-red-400 transition-colors cursor-pointer p-1.5"
+                    className="text-[#1a1a1a]/30 hover:text-red-400 transition-colors cursor-pointer p-3"
                   >
-                    <Trash2 size={14} />
+                    <Trash2 size={18} />
                   </button>
                 </>
               )}
