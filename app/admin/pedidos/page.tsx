@@ -3,7 +3,7 @@ export const dynamic = 'force-dynamic'
 import { auth } from '@/lib/auth'
 import { db } from '@/lib/db'
 import { orders, orderItems } from '@/lib/db/schema'
-import { eq, desc } from 'drizzle-orm'
+import { eq, desc, inArray } from 'drizzle-orm'
 import AdminNav from '@/components/admin/AdminNav'
 import OrdersClient from './OrdersClient'
 
@@ -20,17 +20,21 @@ export default async function PedidosPage() {
         .limit(100)
     : []
 
-  // Buscar itens dos pedidos
+  // Buscar todos os itens dos pedidos de uma vez
   const orderIds = rows.map((o) => o.id)
-  const items =
-    orderIds.length > 0
-      ? await db
-          .select()
-          .from(orderItems)
-          .where(eq(orderItems.orderId, orderIds[0])) // simplificado — client faz a agregação
-      : []
+  const allItems = orderIds.length > 0
+    ? await db
+        .select()
+        .from(orderItems)
+        .where(inArray(orderItems.orderId, orderIds))
+    : []
 
-  void items // itens buscados por pedido no client
+  // Agrupar itens por pedido
+  const itemsByOrder = allItems.reduce<Record<string, typeof allItems>>((acc, item) => {
+    if (!acc[item.orderId]) acc[item.orderId] = []
+    acc[item.orderId].push(item)
+    return acc
+  }, {})
 
   return (
     <>
@@ -39,7 +43,7 @@ export default async function PedidosPage() {
         <div className="flex items-center justify-between mb-6 px-4">
           <h1 className="font-serif text-xl text-[#1a1a1a]">Pedidos</h1>
         </div>
-        <OrdersClient initialOrders={rows} storeId={storeId ?? ''} />
+        <OrdersClient initialOrders={rows} itemsByOrder={itemsByOrder} />
       </main>
     </>
   )

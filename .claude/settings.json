@@ -38,5 +38,13 @@
         ]
       }
     ]
+  },
+  "permissions": {
+    "allow": [
+      "Bash(git *)",
+      "Bash(npm run build)",
+      "Bash(npm run db:*)",
+      "Bash(npx *)"
+    ]
   }
 }

@@ -17,13 +17,23 @@ interface Order {
   updatedAt: Date | null
 }
 
+interface OrderItem {
+  id: string
+  orderId: string
+  productName: string
+  unitPrice: string
+  quantity: number
+  variantLabel: string | null
+  subtotal: string
+}
+
 const STATUS_CONFIG: Record<OrderStatus, { label: string; color: string }> = {
-  pending:    { label: 'Pendente',    color: 'bg-yellow-100 text-yellow-800' },
-  confirmed:  { label: 'Confirmado',  color: 'bg-blue-100 text-blue-800' },
-  in_progress:{ label: 'Em preparo', color: 'bg-purple-100 text-purple-800' },
-  ready:      { label: 'Pronto',      color: 'bg-green-100 text-green-800' },
-  delivered:  { label: 'Entregue',    color: 'bg-green-200 text-green-900' },
-  cancelled:  { label: 'Cancelado',   color: 'bg-red-100 text-red-700' },
+  pending:     { label: 'Pendente',    color: 'bg-yellow-100 text-yellow-800' },
+  confirmed:   { label: 'Confirmado',  color: 'bg-blue-100 text-blue-800' },
+  in_progress: { label: 'Em preparo', color: 'bg-purple-100 text-purple-800' },
+  ready:       { label: 'Pronto',      color: 'bg-green-100 text-green-800' },
+  delivered:   { label: 'Entregue',    color: 'bg-green-200 text-green-900' },
+  cancelled:   { label: 'Cancelado',   color: 'bg-red-100 text-red-700' },
 }
 
 const NEXT_STATUS: Record<OrderStatus, OrderStatus | null> = {
@@ -42,13 +52,17 @@ function fmt(d: Date | null) {
   return new Date(d).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })
 }
 
-export default function OrdersClient({ initialOrders, storeId }: { initialOrders: Order[]; storeId: string }) {
+export default function OrdersClient({
+  initialOrders,
+  itemsByOrder,
+}: {
+  initialOrders: Order[]
+  itemsByOrder: Record<string, OrderItem[]>
+}) {
   const [orders, setOrders] = useState(initialOrders)
   const [filter, setFilter] = useState<OrderStatus | 'all'>('all')
   const [expanding, setExpanding] = useState<string | null>(null)
   const [updating, setUpdating] = useState<string | null>(null)
-
-  void storeId
 
   const filtered = filter === 'all' ? orders : orders.filter((o) => o.status === filter)
 
@@ -70,17 +84,22 @@ export default function OrdersClient({ initialOrders, storeId }: { initialOrders
       <div className="text-center py-24 text-[#1a1a1a]/20 px-4">
         <ShoppingBag size={40} strokeWidth={1} className="mx-auto mb-4" />
         <p className="text-sm">Nenhum pedido ainda.</p>
+        <p className="text-xs mt-2">Os pedidos aparecerão aqui quando clientes finalizarem a compra.</p>
       </div>
     )
   }
 
   return (
     <div>
-      {/* Filtros de status */}
+      {/* Filtros */}
       <div className="flex gap-2 overflow-x-auto no-scrollbar px-4 pb-4">
         <button
           onClick={() => setFilter('all')}
-          className={`shrink-0 px-3 py-1.5 text-xs rounded-full border transition-colors cursor-pointer ${filter === 'all' ? 'bg-[#1a1a1a] text-white border-[#1a1a1a]' : 'border-black/15 text-[#1a1a1a]/60 hover:border-[#1a1a1a]/40'}`}
+          className={`shrink-0 px-3 py-1.5 text-xs rounded-full border transition-colors cursor-pointer ${
+            filter === 'all'
+              ? 'bg-[#1a1a1a] text-white border-[#1a1a1a]'
+              : 'border-black/15 text-[#1a1a1a]/60 hover:border-[#1a1a1a]/40'
+          }`}
         >
           Todos ({orders.length})
         </button>
@@ -92,7 +111,11 @@ export default function OrdersClient({ initialOrders, storeId }: { initialOrders
             <button
               key={s}
               onClick={() => setFilter(s)}
-              className={`shrink-0 px-3 py-1.5 text-xs rounded-full border transition-colors cursor-pointer ${filter === s ? 'bg-[#1a1a1a] text-white border-[#1a1a1a]' : 'border-black/15 text-[#1a1a1a]/60 hover:border-[#1a1a1a]/40'}`}
+              className={`shrink-0 px-3 py-1.5 text-xs rounded-full border transition-colors cursor-pointer ${
+                filter === s
+                  ? 'bg-[#1a1a1a] text-white border-[#1a1a1a]'
+                  : 'border-black/15 text-[#1a1a1a]/60 hover:border-[#1a1a1a]/40'
+              }`}
             >
               {cfg.label} ({count})
             </button>
@@ -100,16 +123,18 @@ export default function OrdersClient({ initialOrders, storeId }: { initialOrders
         })}
       </div>
 
-      {/* Lista de pedidos */}
+      {/* Lista */}
       <div className="border-t border-black/8 divide-y divide-black/5">
         {filtered.map((order) => {
           const status = order.status as OrderStatus
           const cfg = STATUS_CONFIG[status] ?? STATUS_CONFIG.pending
           const next = NEXT_STATUS[status]
           const isExpanded = expanding === order.id
+          const items = itemsByOrder[order.id] ?? []
 
           return (
             <div key={order.id} className="px-4 py-4">
+              {/* Cabeçalho do pedido */}
               <div className="flex items-start justify-between gap-3">
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 flex-wrap mb-1">
@@ -119,7 +144,7 @@ export default function OrdersClient({ initialOrders, storeId }: { initialOrders
                     </span>
                   </div>
                   <p className="text-xs text-[#1a1a1a]/50">{order.customerPhone}</p>
-                  <p className="text-xs text-[#1a1a1a]/40 mt-0.5">
+                  <p className="text-xs text-[#1a1a1a]/30 mt-0.5">
                     {fmt(order.createdAt)} · #{order.id.slice(0, 8).toUpperCase()}
                   </p>
                 </div>
@@ -127,6 +152,7 @@ export default function OrdersClient({ initialOrders, storeId }: { initialOrders
                   <p className="text-sm font-semibold text-[#1a1a1a]">
                     R$ {Number(order.total).toFixed(2).replace('.', ',')}
                   </p>
+                  <p className="text-xs text-[#1a1a1a]/30">{items.length} {items.length === 1 ? 'item' : 'itens'}</p>
                 </div>
               </div>
 
@@ -154,15 +180,49 @@ export default function OrdersClient({ initialOrders, storeId }: { initialOrders
                   onClick={() => setExpanding(isExpanded ? null : order.id)}
                   className="flex items-center gap-1 px-3 py-1.5 border border-black/15 text-xs text-[#1a1a1a]/60 rounded-full cursor-pointer hover:border-[#1a1a1a]/40 transition-colors ml-auto"
                 >
-                  Detalhes <ChevronDown size={12} className={`transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
+                  Detalhes{' '}
+                  <ChevronDown size={12} className={`transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
                 </button>
               </div>
 
               {/* Detalhes expandidos */}
               {isExpanded && (
-                <div className="mt-3 pt-3 border-t border-black/8 text-xs text-[#1a1a1a]/60 space-y-1.5">
-                  {order.notes && <p><span className="text-[#1a1a1a]/40">Obs. cliente:</span> {order.notes}</p>}
-                  {order.internalNotes && <p><span className="text-[#1a1a1a]/40">Obs. interna:</span> {order.internalNotes}</p>}
+                <div className="mt-3 pt-3 border-t border-black/8 space-y-3">
+                  {/* Itens do pedido */}
+                  {items.length > 0 && (
+                    <div>
+                      <p className="text-[10px] font-medium text-[#1a1a1a]/40 uppercase tracking-wider mb-2">
+                        Itens pedidos
+                      </p>
+                      <ul className="space-y-1.5">
+                        {items.map((item) => (
+                          <li key={item.id} className="flex justify-between text-xs text-[#1a1a1a]/70">
+                            <span>
+                              {item.quantity}x {item.productName}
+                              {item.variantLabel && (
+                                <span className="text-[#1a1a1a]/40"> · {item.variantLabel}</span>
+                              )}
+                            </span>
+                            <span className="font-medium text-[#1a1a1a]">
+                              R$ {Number(item.subtotal).toFixed(2).replace('.', ',')}
+                            </span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+
+                  {/* Observações */}
+                  {(order.notes || order.internalNotes) && (
+                    <div className="text-xs space-y-1 text-[#1a1a1a]/50">
+                      {order.notes && (
+                        <p><span className="text-[#1a1a1a]/30 uppercase tracking-wide text-[9px]">Obs. cliente</span><br />{order.notes}</p>
+                      )}
+                      {order.internalNotes && (
+                        <p><span className="text-[#1a1a1a]/30 uppercase tracking-wide text-[9px]">Obs. interna</span><br />{order.internalNotes}</p>
+                      )}
+                    </div>
+                  )}
                 </div>
               )}
             </div>

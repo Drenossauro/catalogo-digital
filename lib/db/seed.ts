@@ -1,10 +1,10 @@
 /**
  * Seed inicial — planos e usuário admin do sistema.
  *
- * Pré-requisito: migrations aplicadas (`npx drizzle-kit migrate`)
+ * Pré-requisito: migrations aplicadas (`npm run db:migrate`)
  *
  * Como rodar:
- *   npx tsx lib/db/seed.ts
+ *   npm run db:seed
  *
  * Variáveis de ambiente lidas de `.env.local`.
  */

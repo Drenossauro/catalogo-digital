@@ -5,17 +5,16 @@
  *   npx tsx scripts/create-user.ts <email> <senha> [system_role]
  *
  * Exemplos:
- *   npx tsx scripts/create-user.ts admin@site.com senha123 admin   ← admin do sistema
- *   npx tsx scripts/create-user.ts joao@loja.com senha123          ← lojista (sem system_role)
+ *   npx tsx scripts/create-user.ts admin@site.com senha123 admin
+ *   npx tsx scripts/create-user.ts joao@loja.com senha123
  */
 
 import { config } from 'dotenv'
 import { resolve } from 'path'
-
 config({ path: resolve(process.cwd(), '.env.local') })
 
-import { drizzle } from 'drizzle-orm/neon-http'
 import { neon } from '@neondatabase/serverless'
+import { drizzle } from 'drizzle-orm/neon-http'
 import { users } from '../lib/db/schema'
 import { hash } from 'bcryptjs'
 
