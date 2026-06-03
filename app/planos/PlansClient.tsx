@@ -72,6 +72,21 @@ export default function PlansClient({ plans }: { plans: Plan[] }) {
   return (
     <div className="min-h-screen bg-[#FAF8F5] px-4 py-16">
       <div className="max-w-4xl mx-auto">
+        {/* Step indicator */}
+        <div className="flex items-center justify-center mb-10">
+          {(['Cadastro', 'Plano', 'Pronto'] as const).map((label, i) => (
+            <div key={label} className="flex items-center">
+              <div className="flex flex-col items-center">
+                <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-medium ${
+                  i < 1 ? 'bg-[#1a1a1a] text-white' : i === 1 ? 'bg-[#1a1a1a] text-white' : 'border border-black/20 text-[#1a1a1a]/30'
+                }`}>{i < 1 ? '✓' : i + 1}</div>
+                <span className={`text-[10px] mt-1 tracking-wide ${i <= 1 ? 'text-[#1a1a1a]' : 'text-[#1a1a1a]/30'}`}>{label}</span>
+              </div>
+              {i < 2 && <div className={`w-10 h-px mx-2 mb-3 ${i < 1 ? 'bg-[#1a1a1a]' : 'bg-black/10'}`} />}
+            </div>
+          ))}
+        </div>
+
         {/* Header */}
         <div className="text-center mb-12">
           <div className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-[#1a1a1a] mb-6">

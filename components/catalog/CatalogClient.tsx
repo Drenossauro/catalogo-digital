@@ -69,6 +69,15 @@ export default function CatalogClient({ products, categories, whatsappNumber, st
         </header>
 
         <main className="pb-8">
+          {products.length === 0 && (
+            <div className="flex flex-col items-center justify-center py-24 px-4 text-center">
+              <div className="w-12 h-12 rounded-full flex items-center justify-center mb-4" style={{ background: theme.surface }}>
+                <ShoppingBag size={22} strokeWidth={1.5} style={{ color: theme.textMuted }} />
+              </div>
+              <p className="text-base font-medium mb-1" style={{ color: theme.text }}>Em breve por aqui</p>
+              <p className="text-sm" style={{ color: theme.textMuted }}>Esta loja ainda está preparando o catálogo.</p>
+            </div>
+          )}
           {categories.map((cat) => {
             const catProducts = products.filter((p) => p.categoryId === cat.id)
             if (catProducts.length === 0) return null

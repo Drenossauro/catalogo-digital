@@ -95,6 +95,21 @@ export default function CadastroPage() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#FAF8F5] px-4 py-12">
       <div className="w-full max-w-sm">
+        {/* Step indicator */}
+        <div className="flex items-center justify-center mb-10">
+          {(['Cadastro', 'Plano', 'Pronto'] as const).map((label, i) => (
+            <div key={label} className="flex items-center">
+              <div className="flex flex-col items-center">
+                <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-medium ${
+                  i === 0 ? 'bg-[#1a1a1a] text-white' : 'border border-black/20 text-[#1a1a1a]/30'
+                }`}>{i + 1}</div>
+                <span className={`text-[10px] mt-1 tracking-wide ${i === 0 ? 'text-[#1a1a1a]' : 'text-[#1a1a1a]/30'}`}>{label}</span>
+              </div>
+              {i < 2 && <div className="w-10 h-px bg-black/10 mx-2 mb-3" />}
+            </div>
+          ))}
+        </div>
+
         <div className="text-center mb-10">
           <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-[#1a1a1a] mb-5">
             <span className="font-serif text-xl text-[#FAF8F5] leading-none">✦</span>

@@ -5,7 +5,7 @@ import { db } from '@/lib/db'
 import { products, categories } from '@/lib/db/schema'
 import { eq, and } from 'drizzle-orm'
 import Link from 'next/link'
-import { Plus, Pencil, ToggleLeft, ToggleRight } from 'lucide-react'
+import { Plus, Pencil, ToggleLeft, ToggleRight, Package, Tags, ExternalLink, Check } from 'lucide-react'
 import AdminNav from '@/components/admin/AdminNav'
 import { revalidatePath } from 'next/cache'
 
@@ -13,9 +13,9 @@ export default async function DashboardPage() {
   const session = await auth()
   const storeId = session?.user?.storeId ?? null
 
-  const rows = storeId
-    ? await db
-        .select({
+  const [rows, categoryRows] = await Promise.all([
+    storeId
+      ? db.select({
           id: products.id,
           name: products.name,
           price: products.price,
@@ -26,7 +26,15 @@ export default async function DashboardPage() {
         .leftJoin(categories, eq(products.categoryId, categories.id))
         .where(eq(products.storeId, storeId))
         .orderBy(products.createdAt)
-    : []
+      : Promise.resolve([]),
+    storeId
+      ? db.select({ id: categories.id }).from(categories).where(eq(categories.storeId, storeId)).limit(1)
+      : Promise.resolve([]),
+  ])
+
+  const hasCategories = categoryRows.length > 0
+  const hasProducts = rows.length > 0
+  const storeSlug = session?.user?.storeSlug ?? null
 
   async function toggleActive(id: string, active: boolean) {
     'use server'
@@ -53,9 +61,38 @@ export default async function DashboardPage() {
           <div className="text-center py-24 text-[#1a1a1a]/30 px-4">
             <p className="text-sm">Sua conta não está associada a nenhuma loja.</p>
           </div>
-        ) : rows.length === 0 ? (
-          <div className="text-center py-24 text-[#1a1a1a]/30 px-4">
-            <p className="text-sm">Nenhum produto cadastrado ainda.</p>
+        ) : !hasProducts ? (
+          /* Onboarding checklist */
+          <div className="px-4 max-w-md mx-auto py-12">
+            <p className="font-serif text-xl text-[#1a1a1a] mb-2">Boas-vindas! ✦</p>
+            <p className="text-sm text-[#1a1a1a]/50 mb-8">Complete os passos abaixo para publicar seu catálogo.</p>
+            <ol className="flex flex-col gap-4">
+              {[
+                { done: true,          icon: Check,       label: 'Conta criada',                        href: null },
+                { done: true,          icon: Check,       label: 'Plano escolhido',                     href: null },
+                { done: hasCategories, icon: Tags,        label: 'Crie sua primeira categoria',          href: '/admin/categorias' },
+                { done: false,         icon: Package,     label: 'Adicione seu primeiro produto',        href: '/admin/produtos/novo' },
+                { done: false,         icon: ExternalLink, label: 'Compartilhe o link do seu catálogo', href: storeSlug ? `/loja/${storeSlug}` : null },
+              ].map(({ done, icon: Icon, label, href }, i) => (
+                <li key={i} className="flex items-center gap-4">
+                  <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${done ? 'bg-[#1a1a1a]' : 'border border-black/20'}`}>
+                    {done
+                      ? <Check size={14} className="text-white" />
+                      : <Icon size={14} className="text-[#1a1a1a]/30" />
+                    }
+                  </div>
+                  <div className="flex-1">
+                    {href && !done ? (
+                      <Link href={href} className="text-sm text-[#1a1a1a] underline underline-offset-2 hover:opacity-70 transition-opacity">
+                        {label}
+                      </Link>
+                    ) : (
+                      <span className={`text-sm ${done ? 'text-[#1a1a1a]/40 line-through' : 'text-[#1a1a1a]'}`}>{label}</span>
+                    )}
+                  </div>
+                </li>
+              ))}
+            </ol>
           </div>
         ) : (
           <>

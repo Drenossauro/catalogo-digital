@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { ChevronLeft, MessageCircle } from 'lucide-react'
+import { ChevronLeft, MessageCircle, CheckCircle } from 'lucide-react'
 import { useCart } from '@/hooks/useCart'
 
 interface Props {
@@ -23,6 +23,8 @@ export default function PedidoPage({ params }: Props) {
   const [installments, setInstallments] = useState(1)
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [confirmed, setConfirmed] = useState(false)
+  const [whatsappUrl, setWhatsappUrl] = useState('')
 
   useEffect(() => {
     params.then(({ slug: s }) => setSlug(s))
@@ -31,6 +33,37 @@ export default function PedidoPage({ params }: Props) {
   const total = cart.reduce((sum, { product, quantity }) => sum + product.price * quantity, 0)
 
   if (!slug) return null
+
+  if (confirmed) {
+    return (
+      <div className="min-h-screen bg-[#FAF8F5] flex flex-col items-center justify-center px-4 text-center">
+        <div className="w-16 h-16 rounded-full bg-green-50 flex items-center justify-center mb-6">
+          <CheckCircle size={36} className="text-green-500" strokeWidth={1.5} />
+        </div>
+        <h1 className="font-serif text-2xl text-[#1a1a1a] mb-2">Pedido enviado!</h1>
+        <p className="text-sm text-[#1a1a1a]/50 mb-8 max-w-xs">
+          Seu pedido foi registrado. O WhatsApp foi aberto para você confirmar com a loja.
+        </p>
+        <div className="flex flex-col gap-3 w-full max-w-xs">
+          <a
+            href={whatsappUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center justify-center gap-2 bg-[#25D366] text-white py-3 text-sm font-medium"
+          >
+            <MessageCircle size={16} />
+            Abrir WhatsApp
+          </a>
+          <Link
+            href={`/loja/${slug}`}
+            className="py-3 border border-black/15 text-sm text-[#1a1a1a] text-center hover:bg-black/5 transition-colors"
+          >
+            Voltar ao catálogo
+          </Link>
+        </div>
+      </div>
+    )
+  }
 
   if (totalItems === 0) {
     return (
@@ -75,9 +108,10 @@ export default function PedidoPage({ params }: Props) {
       return
     }
 
-    // Abre o WhatsApp e redireciona de volta ao catálogo
+    // Mostra tela de confirmação e abre WhatsApp
+    setWhatsappUrl(data.whatsappUrl)
+    setConfirmed(true)
     window.open(data.whatsappUrl, '_blank')
-    router.push(`/loja/${slug}`)
   }
 
   return (
