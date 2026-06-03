@@ -1,0 +1,42 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "BRANCH=$(git symbolic-ref refs/remotes/origin/HEAD 2>/dev/null | sed 's|refs/remotes/origin/||'); [ -z \"$BRANCH\" ] && BRANCH=\"main\"; echo \"🔄 Sincronizando com origin/$BRANCH...\"; git pull origin $BRANCH",
+            "statusMessage": "Git pull antes de iniciar...",
+            "timeout": 30
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "if": "Bash(git commit*)",
+            "command": "echo '🏗️  Rodando build antes do commit...' && npm run build",
+            "statusMessage": "Verificando build antes do commit...",
+            "timeout": 120
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "CHANGES=$(git status --porcelain 2>/dev/null); if [ -n \"$CHANGES\" ]; then echo '{\"systemMessage\": \"⚠️  Há alterações não commitadas. Lembre-se: build → commit → push antes de encerrar!\"}'; fi",
+            "timeout": 10,
+            "async": true
+          }
+        ]
+      }
+    ]
+  }
+}

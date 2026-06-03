@@ -5,6 +5,7 @@ import { db } from '@/lib/db'
 import { products } from '@/lib/db/schema'
 import { eq, and } from 'drizzle-orm'
 import { NextRequest, NextResponse } from 'next/server'
+import { canCreateProduct } from '@/lib/plans'
 
 async function requireAuth() {
   const session = await auth()
@@ -18,6 +19,12 @@ export async function POST(req: NextRequest) {
 
   const storeId = session!.user.storeId
   const body = await req.json()
+
+  // Gate de plano: verificar limite de produtos
+  if (storeId) {
+    const gate = await canCreateProduct(storeId)
+    if (!gate.ok) return NextResponse.json({ error: gate.reason }, { status: gate.status })
+  }
 
   const [product] = await db.insert(products).values({
     name: body.name,

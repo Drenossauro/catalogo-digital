@@ -1,8 +1,8 @@
 export const dynamic = 'force-dynamic'
 
 import { db } from '@/lib/db'
-import { stores, users } from '@/lib/db/schema'
-import { eq } from 'drizzle-orm'
+import { stores, storeMembers, users, subscriptions, plans } from '@/lib/db/schema'
+import { eq, and } from 'drizzle-orm'
 import Link from 'next/link'
 import { Plus } from 'lucide-react'
 import SuperAdminNav from '@/components/superadmin/SuperAdminNav'
@@ -14,13 +14,20 @@ export default async function LojasPage() {
       id: stores.id,
       slug: stores.slug,
       name: stores.name,
-      subscriptionStatus: stores.subscriptionStatus,
-      subscriptionExpiresAt: stores.subscriptionExpiresAt,
+      status: stores.status,
       createdAt: stores.createdAt,
-      adminEmail: users.email,
+      ownerEmail: users.email,
+      subscriptionStatus: subscriptions.status,
+      planName: plans.name,
     })
     .from(stores)
-    .leftJoin(users, eq(users.storeId, stores.id))
+    .leftJoin(
+      storeMembers,
+      and(eq(storeMembers.storeId, stores.id), eq(storeMembers.role, 'lojista')),
+    )
+    .leftJoin(users, eq(users.id, storeMembers.userId))
+    .leftJoin(subscriptions, eq(subscriptions.storeId, stores.id))
+    .leftJoin(plans, eq(plans.id, subscriptions.planId))
     .orderBy(stores.createdAt)
 
   return (

@@ -163,7 +163,7 @@ export default function CatalogClient({ products, categories, whatsappNumber, st
         {cartOpen && (
           <CartDrawer
             items={cart}
-            whatsappNumber={whatsappNumber}
+            storeSlug={storeSlug}
             maxInstallments={maxInstallments}
             onClose={() => setCartOpen(false)}
             onRemove={removeFromCart}

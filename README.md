@@ -1,36 +1,118 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Catálogo Digital
 
-## Getting Started
+Sistema B2B multi-tenant de catálogo digital de produtos. Cada loja tem seu catálogo público (`/loja/[slug]`), painel admin protegido por login e integração com WhatsApp para pedidos.
 
-First, run the development server:
+**Stack:** Next.js 16 · React 19 · TypeScript · Tailwind CSS 4 · Neon PostgreSQL · Drizzle ORM · NextAuth v5 · Cloudinary
+
+---
+
+## Executando localmente
+
+### Pré-requisitos
+
+- Node.js 20+
+- npm 10+
+- Conta no [Neon](https://neon.tech) (banco PostgreSQL serverless gratuito)
+- Conta no [Cloudinary](https://cloudinary.com) (plano gratuito suficiente)
+
+### 1. Clone e instale as dependências
+
+```bash
+git clone <url-do-repositorio>
+cd catalogo-digital
+npm install
+```
+
+### 2. Configure as variáveis de ambiente
+
+Copie o arquivo de exemplo e preencha os valores:
+
+```bash
+cp .env.example .env.local
+```
+
+Edite `.env.local`:
+
+```env
+# Neon PostgreSQL — copie a connection string do painel do Neon
+DATABASE_URL=postgres://user:password@host/dbname?sslmode=require
+
+# NextAuth — gere um segredo aleatório
+AUTH_SECRET=<rode: openssl rand -hex 32>
+
+# WhatsApp — código do país + DDD + número, sem espaço nem caracteres especiais
+NEXT_PUBLIC_WHATSAPP_NUMBER=5511999999999
+
+# Cloudinary — encontre no painel em Settings > Account
+NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME=seu_cloud_name
+CLOUDINARY_UPLOAD_PRESET=seu_upload_preset_sem_assinatura
+```
+
+> **Cloudinary:** No painel, vá em **Settings → Upload → Upload presets** e crie um preset com *Signing Mode* = **Unsigned**.
+
+### 3. Crie e aplique o schema no banco
+
+```bash
+# Gera os arquivos de migration a partir do schema Drizzle
+npx drizzle-kit generate
+
+# Aplica as migrations no banco Neon
+npx drizzle-kit migrate
+```
+
+### 4. Crie o primeiro usuário superadmin
+
+Execute o SQL abaixo no console do Neon (ou via `npx drizzle-kit studio`), substituindo email e hash da senha:
+
+```sql
+-- Gere o hash da senha com: node -e "require('bcryptjs').hash('suasenha', 12).then(console.log)"
+INSERT INTO users (email, password_hash, role)
+VALUES ('admin@exemplo.com', '$2b$12$...hash...', 'superadmin');
+```
+
+### 5. Inicie o servidor de desenvolvimento
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Acesse [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+| Rota | Descrição |
+|---|---|
+| `/` | Home pública |
+| `/loja/[slug]` | Catálogo público de uma loja |
+| `/admin/login` | Login do administrador de loja |
+| `/admin/dashboard` | Painel do admin |
+| `/superadmin/lojas` | Painel do superadmin (todas as lojas) |
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+---
 
-## Learn More
+## Banco de dados
 
-To learn more about Next.js, take a look at the following resources:
+O schema vive em [`lib/db/schema.ts`](lib/db/schema.ts) e é gerenciado pelo Drizzle ORM.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```bash
+npx drizzle-kit studio   # UI visual do banco em localhost:4983
+npx drizzle-kit generate # Gera migration após alterar o schema
+npx drizzle-kit migrate  # Aplica migrations pendentes
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Scripts disponíveis
 
-## Deploy on Vercel
+```bash
+npm run dev        # Servidor de desenvolvimento
+npm run build      # Build de produção
+npm run start      # Servidor de produção
+npm run lint       # Lint com ESLint
+npm run deploy     # Executa scripts/deploy.ps1
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+npm run db:generate  # Gera migration após alterar lib/db/schema.ts
+npm run db:migrate   # Aplica migrations pendentes no Neon
+npm run db:studio    # UI visual do banco em localhost:4983
+npm run db:seed      # Seed de planos + usuário admin do sistema
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+---
+
+Para mais detalhes sobre a arquitetura, modelo de dados e decisões técnicas, consulte [CONTEXT.md](CONTEXT.md).

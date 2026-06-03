@@ -45,7 +45,7 @@ export default function CategoryPageClient({ products, whatsappNumber, maxInstal
       {cartOpen && (
         <CartDrawer
           items={cart}
-          whatsappNumber={whatsappNumber}
+          storeSlug={storeSlug}
           maxInstallments={maxInstallments}
           onClose={() => setCartOpen(false)}
           onRemove={removeFromCart}

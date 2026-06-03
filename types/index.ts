@@ -5,6 +5,20 @@ export interface Category {
   createdAt: Date | null
 }
 
+export interface ProductVariantOption {
+  value: string
+  price_modifier: number
+}
+
+export interface ProductVariant {
+  id: string
+  productId: string
+  label: string
+  options: ProductVariantOption[]
+  required: boolean
+  position: number
+}
+
 export interface Product {
   id: string
   name: string
@@ -14,9 +28,11 @@ export interface Product {
   imageUrl: string | null
   active: boolean
   createdAt: Date | null
+  variants?: ProductVariant[]
 }
 
 export interface CartItem {
   product: Product
   quantity: number
+  variantLabel?: string  // ex: "Tamanho: M / Cor: Azul"
 }

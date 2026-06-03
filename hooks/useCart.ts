@@ -3,6 +3,11 @@
 import { useState, useEffect, useCallback } from 'react'
 import { Product, CartItem } from '@/types'
 
+// Chave única por produto+variante
+function itemKey(productId: string, variantLabel?: string) {
+  return `${productId}::${variantLabel ?? ''}`
+}
+
 export function useCart(storeSlug?: string | null) {
   const [cart, setCart] = useState<CartItem[]>([])
   const [hydrated, setHydrated] = useState(false)
@@ -28,27 +33,36 @@ export function useCart(storeSlug?: string | null) {
     }
   }, [cart, hydrated, key])
 
-  const addToCart = useCallback((product: Product) => {
+  const addToCart = useCallback((product: Product, variantLabel?: string) => {
     setCart((prev) => {
-      const existing = prev.find((i) => i.product.id === product.id)
-      if (existing) return prev.map((i) => i.product.id === product.id ? { ...i, quantity: i.quantity + 1 } : i)
-      return [...prev, { product, quantity: 1 }]
+      const k = itemKey(product.id, variantLabel)
+      const existing = prev.find((i) => itemKey(i.product.id, i.variantLabel) === k)
+      if (existing) {
+        return prev.map((i) =>
+          itemKey(i.product.id, i.variantLabel) === k ? { ...i, quantity: i.quantity + 1 } : i,
+        )
+      }
+      return [...prev, { product, quantity: 1, variantLabel }]
     })
   }, [])
 
-  const removeFromCart = useCallback((productId: string) => {
-    setCart((prev) => prev.filter((i) => i.product.id !== productId))
+  const removeFromCart = useCallback((productId: string, variantLabel?: string) => {
+    const k = itemKey(productId, variantLabel)
+    setCart((prev) => prev.filter((i) => itemKey(i.product.id, i.variantLabel) !== k))
   }, [])
 
-  const changeQty = useCallback((productId: string, delta: number) => {
+  const changeQty = useCallback((productId: string, delta: number, variantLabel?: string) => {
+    const k = itemKey(productId, variantLabel)
     setCart((prev) =>
       prev
-        .map((i) => i.product.id === productId ? { ...i, quantity: i.quantity + delta } : i)
-        .filter((i) => i.quantity > 0)
+        .map((i) => itemKey(i.product.id, i.variantLabel) === k ? { ...i, quantity: i.quantity + delta } : i)
+        .filter((i) => i.quantity > 0),
     )
   }, [])
 
+  const clearCart = useCallback(() => setCart([]), [])
+
   const totalItems = cart.reduce((sum, i) => sum + i.quantity, 0)
 
-  return { cart, hydrated, addToCart, removeFromCart, changeQty, totalItems }
+  return { cart, hydrated, addToCart, removeFromCart, changeQty, clearCart, totalItems }
 }

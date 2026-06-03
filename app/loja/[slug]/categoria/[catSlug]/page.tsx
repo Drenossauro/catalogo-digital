@@ -24,11 +24,7 @@ export default async function LojaCategoryPage({ params }: Props) {
 
   if (!store) notFound()
 
-  const isSuspended =
-    store.subscriptionStatus === 'suspended' ||
-    (store.subscriptionStatus === 'trial' && store.subscriptionExpiresAt != null && store.subscriptionExpiresAt < new Date())
-
-  if (isSuspended) notFound()
+  if (store.status === 'inactive') notFound()
 
   const [[category], productRows] = await Promise.all([
     db

@@ -1,8 +1,8 @@
 export const dynamic = 'force-dynamic'
 
 import { db } from '@/lib/db'
-import { stores, users } from '@/lib/db/schema'
-import { eq } from 'drizzle-orm'
+import { stores, storeMembers, users } from '@/lib/db/schema'
+import { eq, and } from 'drizzle-orm'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { ChevronLeft } from 'lucide-react'
@@ -19,10 +19,12 @@ export default async function EditLojaPage({ params }: Props) {
   const [store] = await db.select().from(stores).where(eq(stores.id, id)).limit(1)
   if (!store) notFound()
 
-  const [adminUser] = await db
+  // Busca o lojista (owner) via store_members
+  const [ownerMember] = await db
     .select({ email: users.email })
-    .from(users)
-    .where(eq(users.storeId, id))
+    .from(storeMembers)
+    .innerJoin(users, eq(users.id, storeMembers.userId))
+    .where(and(eq(storeMembers.storeId, id), eq(storeMembers.role, 'lojista')))
     .limit(1)
 
   return (
@@ -37,8 +39,8 @@ export default async function EditLojaPage({ params }: Props) {
         </Link>
         <div className="mb-8">
           <h1 className="font-serif text-xl text-white">{store.name}</h1>
-          {adminUser?.email && (
-            <p className="text-xs text-white/30 mt-1">{adminUser.email}</p>
+          {ownerMember?.email && (
+            <p className="text-xs text-white/30 mt-1">{ownerMember.email}</p>
           )}
         </div>
         <EditLojaForm store={{

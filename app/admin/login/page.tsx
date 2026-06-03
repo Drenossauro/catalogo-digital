@@ -2,10 +2,13 @@
 
 import { useState } from 'react'
 import { signIn } from 'next-auth/react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
+import Link from 'next/link'
+import { Suspense } from 'react'
 
-export default function LoginPage() {
+function LoginForm() {
   const router = useRouter()
+  const searchParams = useSearchParams()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
@@ -15,16 +18,23 @@ export default function LoginPage() {
     e.preventDefault()
     setError(null)
     setLoading(true)
+
     const result = await signIn('credentials', { email, password, redirect: false })
-    if (result?.error) { setError('E-mail ou senha inválidos.'); setLoading(false); return }
-    router.push('/admin/dashboard')
+    if (result?.error) {
+      setError('E-mail ou senha inválidos.')
+      setLoading(false)
+      return
+    }
+
+    // Redirecionar para callbackUrl ou dashboard padrão
+    const callbackUrl = searchParams.get('callbackUrl') ?? '/admin/dashboard'
+    router.push(callbackUrl)
     router.refresh()
   }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#FAF8F5] px-4">
       <div className="w-full max-w-sm">
-
         <div className="text-center mb-10">
           <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-[#1a1a1a] mb-5">
             <span className="font-serif text-xl text-[#FAF8F5] leading-none">✦</span>
@@ -68,8 +78,23 @@ export default function LoginPage() {
           </button>
         </form>
 
-        <p className="text-center text-xs text-[#1a1a1a]/20 mt-10">Vitrine · Acesso restrito</p>
+        <p className="text-center text-xs text-[#1a1a1a]/40 mt-8">
+          Ainda não tem conta?{' '}
+          <Link href="/cadastro" className="underline underline-offset-2 hover:text-[#1a1a1a]">
+            Criar grátis
+          </Link>
+        </p>
+
+        <p className="text-center text-xs text-[#1a1a1a]/20 mt-6">Vitrine · Acesso restrito</p>
       </div>
     </div>
+  )
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={null}>
+      <LoginForm />
+    </Suspense>
   )
 }

@@ -2,8 +2,8 @@ import NextAuth from 'next-auth'
 import Credentials from 'next-auth/providers/credentials'
 import { compare } from 'bcryptjs'
 import { db } from '@/lib/db'
-import { users, stores } from '@/lib/db/schema'
-import { eq } from 'drizzle-orm'
+import { users, storeMembers, stores, subscriptions } from '@/lib/db/schema'
+import { eq, and, isNotNull } from 'drizzle-orm'
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   providers: [
@@ -36,26 +36,51 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   session: { strategy: 'jwt' },
   callbacks: {
     async jwt({ token, user, trigger }) {
-      // Refresh role/storeId from DB on login OR when session is updated
-      if (user || trigger === 'update' || !token.role) {
+      // Refresh from DB on login OR explicit session update
+      if (user || trigger === 'update' || !token.systemRole) {
         const userId = (user?.id ?? token.sub) as string
+
+        // system_role
         const [dbUser] = await db
-          .select({ storeId: users.storeId, role: users.role })
+          .select({ systemRole: users.systemRole })
           .from(users)
           .where(eq(users.id, userId))
           .limit(1)
-        token.storeId = dbUser?.storeId ?? null
-        token.role = dbUser?.role ?? 'admin'
 
-        if (dbUser?.storeId) {
-          const [store] = await db
-            .select({ slug: stores.slug })
-            .from(stores)
-            .where(eq(stores.id, dbUser.storeId))
+        token.systemRole = dbUser?.systemRole ?? null
+
+        // Active store via store_members (first accepted membership)
+        const [membership] = await db
+          .select({
+            storeId: storeMembers.storeId,
+            storeRole: storeMembers.role,
+            storeSlug: stores.slug,
+          })
+          .from(storeMembers)
+          .innerJoin(stores, eq(stores.id, storeMembers.storeId))
+          .where(
+            and(
+              eq(storeMembers.userId, userId),
+              isNotNull(storeMembers.acceptedAt),
+            ),
+          )
+          .orderBy(storeMembers.createdAt)
+          .limit(1)
+
+        token.storeId = membership?.storeId ?? null
+        token.storeSlug = membership?.storeSlug ?? null
+        token.storeRole = membership?.storeRole ?? null
+
+        // Subscription status for the active store
+        if (membership?.storeId) {
+          const [sub] = await db
+            .select({ status: subscriptions.status })
+            .from(subscriptions)
+            .where(eq(subscriptions.storeId, membership.storeId))
             .limit(1)
-          token.storeSlug = store?.slug ?? null
+          token.subscriptionStatus = sub?.status ?? null
         } else {
-          token.storeSlug = null
+          token.subscriptionStatus = null
         }
       }
       return token
@@ -63,7 +88,9 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     async session({ session, token }) {
       session.user.storeId = (token.storeId as string | null) ?? null
       session.user.storeSlug = (token.storeSlug as string | null) ?? null
-      session.user.role = (token.role as string) ?? 'admin'
+      session.user.systemRole = (token.systemRole as string | null) ?? null
+      session.user.storeRole = (token.storeRole as string | null) ?? null
+      session.user.subscriptionStatus = (token.subscriptionStatus as string | null) ?? null
       return session
     },
   },

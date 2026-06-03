@@ -1,8 +1,8 @@
 export const dynamic = 'force-dynamic'
 
 import { db } from '@/lib/db'
-import { products, categories, stores } from '@/lib/db/schema'
-import { eq, and } from 'drizzle-orm'
+import { products, categories, stores, productVariants } from '@/lib/db/schema'
+import { eq, and, inArray } from 'drizzle-orm'
 import { notFound } from 'next/navigation'
 import { getTheme } from '@/lib/themes'
 import CatalogClient from '@/components/catalog/CatalogClient'
@@ -30,11 +30,8 @@ export default async function LojaPage({ params }: Props) {
 
   if (!store) notFound()
 
-  const isSuspended =
-    store.subscriptionStatus === 'suspended' ||
-    (store.subscriptionStatus === 'trial' && store.subscriptionExpiresAt != null && store.subscriptionExpiresAt < new Date())
-
-  if (isSuspended) return <SuspendedPage storeName={store.name} />
+  // Loja inativa = inadimplente ou suspensa pelo admin
+  if (store.status === 'inactive') return <SuspendedPage storeName={store.name} />
 
   const [productRows, categoryRows] = await Promise.all([
     db
@@ -50,16 +47,39 @@ export default async function LojaPage({ params }: Props) {
       })
       .from(products)
       .where(and(eq(products.storeId, store.id), eq(products.active, true)))
-      .orderBy(products.createdAt),
+      .orderBy(products.position, products.createdAt),
     db
       .select()
       .from(categories)
       .where(eq(categories.storeId, store.id))
-      .orderBy(categories.name),
+      .orderBy(categories.position, categories.name),
   ])
 
+  // Buscar variantes dos produtos
+  const productIds = productRows.map((p) => p.id)
+  const variantRows = productIds.length > 0
+    ? await db
+        .select()
+        .from(productVariants)
+        .where(inArray(productVariants.productId, productIds))
+        .orderBy(productVariants.position)
+    : []
+
+  const variantsByProduct = variantRows.reduce<Record<string, typeof variantRows>>((acc, v) => {
+    if (!acc[v.productId]) acc[v.productId] = []
+    acc[v.productId].push(v)
+    return acc
+  }, {})
+
   const theme = getTheme(store.theme)
-  const mapped = productRows.map((p) => ({ ...p, price: Number(p.price) }))
+  const mapped = productRows.map((p) => ({
+    ...p,
+    price: Number(p.price),
+    variants: (variantsByProduct[p.id] ?? []).map((v) => ({
+      ...v,
+      options: v.options as { value: string; price_modifier: number }[],
+    })),
+  }))
 
   return (
     <CatalogClient
