@@ -2,6 +2,8 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
+import { useSession } from 'next-auth/react'
 import { Check } from 'lucide-react'
 
 interface Plan {
@@ -50,6 +52,22 @@ const FEATURE_ORDER: (keyof PlanFeatures)[] = [
 
 export default function PlansClient({ plans }: { plans: Plan[] }) {
   const [annual, setAnnual] = useState(false)
+  const [loadingFree, setLoadingFree] = useState(false)
+  const router = useRouter()
+  const { data: session } = useSession()
+
+  async function handleFreeStart() {
+    if (!session) { router.push('/cadastro'); return }
+    setLoadingFree(true)
+    const res = await fetch('/api/assinatura/criar', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ planSlug: 'free', billingPeriod: 'monthly' }),
+    })
+    const data = await res.json()
+    if (res.ok && data.redirect) router.push(data.redirect)
+    else setLoadingFree(false)
+  }
 
   return (
     <div className="min-h-screen bg-[#FAF8F5] px-4 py-16">
@@ -177,12 +195,13 @@ export default function PlansClient({ plans }: { plans: Plan[] }) {
 
                 {/* CTA */}
                 {isFree ? (
-                  <Link
-                    href="/cadastro"
-                    className="block text-center py-3 text-sm tracking-widest uppercase font-medium border border-black/20 text-[#1a1a1a] hover:bg-black/5 transition-colors"
+                  <button
+                    onClick={handleFreeStart}
+                    disabled={loadingFree}
+                    className="block w-full text-center py-3 text-sm tracking-widest uppercase font-medium border border-black/20 text-[#1a1a1a] hover:bg-black/5 transition-colors disabled:opacity-40 cursor-pointer"
                   >
-                    Começar grátis
-                  </Link>
+                    {loadingFree ? 'Aguarde...' : 'Começar grátis'}
+                  </button>
                 ) : (
                   <Link
                     href={`/cadastro?next=${encodeURIComponent(checkoutUrl!)}`}

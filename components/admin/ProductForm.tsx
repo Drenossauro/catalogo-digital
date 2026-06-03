@@ -31,7 +31,11 @@ export default function ProductForm({ categories, product, storeId, initialVaria
 
   const [name, setName] = useState(product?.name ?? '')
   const [description, setDescription] = useState(product?.description ?? '')
-  const [price, setPrice] = useState(product?.price ?? '')
+  const [price, setPrice] = useState(() => {
+    if (product?.price == null || product.price === '') return ''
+    const num = Number(product.price)
+    return isNaN(num) ? '' : num.toFixed(2).replace('.', ',')
+  })
   const [categoryId, setCategoryId] = useState(product?.categoryId ?? '')
   const [active, setActive] = useState(product?.active ?? true)
   const [imageUrl, setImageUrl] = useState(product?.imageUrl ?? '')
@@ -61,7 +65,7 @@ export default function ProductForm({ categories, product, storeId, initialVaria
       id: product?.id,
       name,
       description: description || null,
-      price,
+      price: price ? parseFloat(price.replace(',', '.')) : 0,
       categoryId: categoryId || null,
       active,
       imageUrl: imageUrl || null,
@@ -156,12 +160,16 @@ export default function ProductForm({ categories, product, storeId, initialVaria
         <div className="flex flex-col gap-1.5">
           <label className="text-xs font-medium text-[#1a1a1a]/50 uppercase tracking-wider">Preço base (R$) *</label>
           <input
-            type="number"
+            type="text"
+            inputMode="numeric"
             value={price}
-            onChange={(e) => setPrice(e.target.value)}
+            onChange={(e) => {
+              const digits = e.target.value.replace(/\D/g, '')
+              if (!digits) { setPrice(''); return }
+              const num = parseInt(digits, 10)
+              setPrice((num / 100).toFixed(2).replace('.', ','))
+            }}
             required
-            min="0"
-            step="0.01"
             className="border-b border-black/15 bg-transparent px-0 py-3 text-sm focus:outline-none focus:border-[#1a1a1a] transition-colors"
             placeholder="0,00"
           />
