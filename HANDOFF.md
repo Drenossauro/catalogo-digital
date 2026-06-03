@@ -1,7 +1,7 @@
 # HANDOFF — Catálogo Digital
 
 > Documento de contexto para continuidade do projeto em nova sessão.
-> Última atualização: 2026-06-03
+> Última atualização: 2026-06-03 (sessão 2)
 
 ---
 
@@ -100,6 +100,9 @@ SaaS B2B multi-tenant de catálogo digital. Qualquer negócio cria sua loja, ger
 - **`db.execute(sql\`...\`).rows`** com `postgres.js` — o driver retorna array diretamente, sem `.rows`. Com `neon-http` (atual), `.rows` é correto.
 - **`storeSettings` table** — era legado do modelo single-tenant. Foi removida.
 - **`users.storeId` e `users.role`** — colunas removidas. Roles agora em `store_members`, stores via `ownerId` em `stores`.
+- **`npm run db:migrate` com URL do pooler Neon** — trava indefinidamente. Usar sempre a URL direta (sem `-pooler.`) para migrations.
+- **`drizzle-kit migrate` com `@neondatabase/serverless`** — driver usa WebSocket e o drizzle-kit 0.31.x trava. Solução: usar o script `scripts/migrate.ts` com `pg` direto (ver seção de scripts abaixo).
+- **`driver: 'pg'` no `drizzle.config.ts`** — não é opção válida no drizzle-kit 0.31.x (só aceita `d1-http`, `expo`, `pglite`, etc.).
 
 ---
 
@@ -123,22 +126,37 @@ Ver `.env.example` para o formato completo. Arquivo correto: `.env.local`.
 
 ---
 
+## Setup do Banco (para ambientes novos)
+
+`npm run db:migrate` não funciona com o driver Neon serverless. Usar os scripts:
+
+```bash
+# 1. Instalar dependência (só na primeira vez)
+npm install pg @types/pg --save-dev
+
+# 2. Aplicar schema do zero (dropa e recria tudo)
+npx tsx scripts/migrate.ts
+
+# 3. Seed: planos + admin
+npm run db:seed
+
+# 4. Ativar lojas presas em 'pending' (se necessário após testes)
+npx tsx scripts/fix-pending-stores.ts
+```
+
+> **DATABASE_URL**: usar URL direta do Neon (sem `-pooler.`). Para o app em produção no Vercel, pode usar a URL com pooler.
+
+---
+
 ## Next Steps
 
 ### Prioridade alta (para lançar com primeiros clientes)
 
-1. **Configurar `.env.local`** com todas as variáveis e rodar:
-   ```bash
-   npm run db:migrate   # aplica o schema no Neon
-   npm run db:seed      # cria planos + admin
-   ```
-
-2. **Testar o fluxo completo localmente:**
-   - Cadastro → plano gratuito → dashboard → criar produto → catálogo → pedido → painel
-
-3. **Configurar variáveis de ambiente no Vercel** (produção)
-
-4. **Testar webhook do Mercado Pago** em sandbox antes de ir a produção
+1. ✅ ~~Configurar `.env.local` e rodar migrate + seed~~
+2. ✅ ~~Testar o fluxo completo localmente~~ (bugs corrigidos, fluxo validado)
+3. **Configurar variáveis de ambiente no Vercel** e fazer o primeiro deploy
+4. **Testar webhook do Mercado Pago** em sandbox (mais fácil após deploy na Vercel)
+5. **Cloudinary**: configurar `NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME` e `CLOUDINARY_UPLOAD_PRESET` — upload de imagem ainda não testado
 
 ### Backlog V2
 
@@ -158,6 +176,16 @@ Ver `.env.example` para o formato completo. Arquivo correto: `.env.local`.
 
 ---
 
+## Bugs Corrigidos (sessão 2)
+
+| Bug | Arquivo | Fix |
+|---|---|---|
+| Redirect loop `/cadastro` ↔ `/planos` ao selecionar plano gratuito | `app/planos/PlansClient.tsx` | Botão "Começar grátis" agora chama `POST /api/assinatura/criar` (antes redirecionava para `/cadastro`) |
+| Loja presa em `pending`, erro "Loja não encontrada ou inativa" | DB + fluxo de cadastro | Corrigido como consequência do fix acima; `activateStore()` é chamado corretamente |
+| Campo de preço sem formatação BRL | `components/admin/ProductForm.tsx` | Trocado `type="number"` por `type="text"` com `inputMode="numeric"` e formatação em tempo real (centavos → reais) |
+
+---
+
 ## Key Files
 
 ```
@@ -171,4 +199,7 @@ lib/mercadopago.ts        ← cliente MP + validação de webhook
 lib/invite.ts             ← JWT de convite de gerente
 vercel.json               ← cron diário às 09h UTC
 .claude/settings.json     ← regras de ouro + permissões pre-aprovadas
+scripts/migrate.ts        ← migration via pg direto (substitui npm run db:migrate)
+scripts/fix-pending-stores.ts ← ativa lojas presas em 'pending'
+scripts/check-tables.ts   ← lista tabelas existentes no banco
 ```
