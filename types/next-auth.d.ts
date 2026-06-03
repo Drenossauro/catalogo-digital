@@ -3,6 +3,7 @@ import { DefaultSession } from 'next-auth'
 declare module 'next-auth' {
   interface Session {
     user: DefaultSession['user'] & {
+      id: string                      // user UUID (token.sub)
       storeId: string | null          // ID da loja ativa (vem de store_members)
       storeSlug: string | null        // slug da loja ativa
       systemRole: string | null       // 'admin' | null
