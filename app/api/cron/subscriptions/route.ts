@@ -8,7 +8,7 @@ export const dynamic = 'force-dynamic'
 
 import { db } from '@/lib/db'
 import { subscriptions, stores } from '@/lib/db/schema'
-import { eq, and, lt, isNotNull } from 'drizzle-orm'
+import { eq, and, lt, gt, isNotNull } from 'drizzle-orm'
 import { NextRequest, NextResponse } from 'next/server'
 import { sendEmail, subjectFor } from '@/lib/notifications/email'
 
@@ -23,6 +23,30 @@ export async function GET(req: NextRequest) {
 
   const now = new Date()
   let processed = 0
+
+  // ── 0. Trial expirando em ~3 dias → notificar lojista ──────────────────────
+  const in2Days = new Date(now); in2Days.setDate(in2Days.getDate() + 2)
+  const in3Days = new Date(now); in3Days.setDate(in3Days.getDate() + 3)
+
+  const trialEndingSoon = await db
+    .select({ id: subscriptions.id, storeId: subscriptions.storeId })
+    .from(subscriptions)
+    .where(
+      and(
+        eq(subscriptions.status, 'trial'),
+        gt(subscriptions.trialEndsAt, in2Days),
+        lt(subscriptions.trialEndsAt, in3Days),
+        isNotNull(subscriptions.trialEndsAt),
+      ),
+    )
+
+  for (const sub of trialEndingSoon) {
+    await sendEmail({
+      storeId: sub.storeId,
+      type: 'subscription_trial_ending',
+    }).catch(console.error)
+    processed++
+  }
 
   // ── 1. Trial expirado → past_due (se tiver preapproval) ou inactive (se não tiver) ──
   const expiredTrials = await db

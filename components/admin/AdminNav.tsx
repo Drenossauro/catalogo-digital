@@ -1,9 +1,10 @@
 'use client'
 
 import { signOut, useSession } from 'next-auth/react'
-import { LogOut, Package, Tags, Settings, ExternalLink, ShoppingBag, CreditCard, Users } from 'lucide-react'
+import { LogOut, Package, Tags, Settings, ExternalLink, ShoppingBag, CreditCard, Users, QrCode } from 'lucide-react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+import StoreSwitcher from './StoreSwitcher'
 
 const TABS = [
   { href: '/admin/dashboard', label: 'Produtos', Icon: Package, matchPrefix: '/admin/dashboard' },
@@ -24,13 +25,16 @@ export default function AdminNav() {
       {/* Top header */}
       <header className="bg-[#FAF8F5] border-b border-black/8 sticky top-0 z-30">
         <div className="w-full px-4 h-14 flex items-center justify-between">
-          {/* Logo */}
-          <Link href="/admin/dashboard" className="flex items-center gap-2 shrink-0">
-            <div className="w-7 h-7 rounded-full bg-[#1a1a1a] flex items-center justify-center">
-              <span className="font-serif text-[11px] text-[#FAF8F5] leading-none">✦</span>
-            </div>
-            <span className="font-serif text-base text-[#1a1a1a]">Vitrine</span>
-          </Link>
+          {/* Logo + Store Switcher */}
+          <div className="flex items-center gap-2 shrink-0">
+            <Link href="/admin/dashboard" className="flex items-center gap-2">
+              <div className="w-7 h-7 rounded-full bg-[#1a1a1a] flex items-center justify-center">
+                <span className="font-serif text-[11px] text-[#FAF8F5] leading-none">✦</span>
+              </div>
+              <span className="font-serif text-base text-[#1a1a1a]">Vitrine</span>
+            </Link>
+            <StoreSwitcher />
+          </div>
 
           {/* Desktop nav links */}
           <div className="hidden sm:flex items-center gap-0.5">
@@ -64,6 +68,18 @@ export default function AdminNav() {
                 <span className="hidden sm:inline">Ver catálogo</span>
               </Link>
             )}
+            <Link
+              href="/admin/qrcode"
+              className={`hidden sm:flex items-center gap-1.5 px-3 py-2 text-xs transition-colors ${
+                pathname.startsWith('/admin/qrcode')
+                  ? 'text-[#1a1a1a]'
+                  : 'text-[#1a1a1a]/30 hover:text-[#1a1a1a]'
+              }`}
+              title="QR Code"
+            >
+              <QrCode size={16} strokeWidth={1.5} />
+              <span className="hidden sm:inline">QR Code</span>
+            </Link>
             <Link
               href="/admin/assinatura"
               className={`hidden sm:flex items-center gap-1.5 px-3 py-2 text-xs transition-colors ${

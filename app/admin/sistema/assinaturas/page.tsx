@@ -3,6 +3,7 @@ export const dynamic = 'force-dynamic'
 import { db } from '@/lib/db'
 import { subscriptions, stores, plans, storeMembers, users } from '@/lib/db/schema'
 import { eq, and } from 'drizzle-orm'
+import TrialOverride from './TrialOverride'
 
 function fmt(d: Date | null) {
   if (!d) return '—'
@@ -63,6 +64,7 @@ export default async function SistemaAssinaturasPage() {
                 </div>
                 {row.ownerEmail && <p className="text-xs text-white/30">{row.ownerEmail}</p>}
                 <p className="text-xs text-white/20 font-mono mt-0.5">/loja/{row.storeSlug}</p>
+                <TrialOverride subscriptionId={row.id} />
               </div>
               <div className="shrink-0 text-right text-xs text-white/40">
                 {row.status === 'trial' && row.trialEndsAt && (

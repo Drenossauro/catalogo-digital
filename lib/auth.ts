@@ -35,7 +35,12 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   },
   session: { strategy: 'jwt' },
   callbacks: {
-    async jwt({ token, user, trigger }) {
+    async jwt({ token, user, trigger, session: updateData }) {
+      // Persist preferred store when user switches via store selector
+      if (trigger === 'update' && updateData?.preferredStoreId !== undefined) {
+        token.preferredStoreId = updateData.preferredStoreId
+      }
+
       // Refresh from DB on login OR explicit session update
       if (user || trigger === 'update' || !token.systemRole) {
         const userId = (user?.id ?? token.sub) as string
@@ -49,7 +54,15 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 
         token.systemRole = dbUser?.systemRole ?? null
 
-        // Active store via store_members (first accepted membership)
+        // Active store: prefer user-selected store, otherwise first accepted membership
+        const whereConditions = [
+          eq(storeMembers.userId, userId),
+          isNotNull(storeMembers.acceptedAt),
+          token.preferredStoreId
+            ? eq(storeMembers.storeId, token.preferredStoreId as string)
+            : undefined,
+        ] as const
+
         const [membership] = await db
           .select({
             storeId: storeMembers.storeId,
@@ -58,25 +71,34 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           })
           .from(storeMembers)
           .innerJoin(stores, eq(stores.id, storeMembers.storeId))
-          .where(
-            and(
-              eq(storeMembers.userId, userId),
-              isNotNull(storeMembers.acceptedAt),
-            ),
-          )
+          .where(and(...whereConditions))
           .orderBy(storeMembers.createdAt)
           .limit(1)
 
-        token.storeId = membership?.storeId ?? null
-        token.storeSlug = membership?.storeSlug ?? null
-        token.storeRole = membership?.storeRole ?? null
+        // If preferred store not found (e.g. removed), fall back to first
+        const activeMembership = membership ?? await db
+          .select({
+            storeId: storeMembers.storeId,
+            storeRole: storeMembers.role,
+            storeSlug: stores.slug,
+          })
+          .from(storeMembers)
+          .innerJoin(stores, eq(stores.id, storeMembers.storeId))
+          .where(and(eq(storeMembers.userId, userId), isNotNull(storeMembers.acceptedAt)))
+          .orderBy(storeMembers.createdAt)
+          .limit(1)
+          .then(r => r[0] ?? null)
+
+        token.storeId = activeMembership?.storeId ?? null
+        token.storeSlug = activeMembership?.storeSlug ?? null
+        token.storeRole = activeMembership?.storeRole ?? null
 
         // Subscription status for the active store
-        if (membership?.storeId) {
+        if (activeMembership?.storeId) {
           const [sub] = await db
             .select({ status: subscriptions.status })
             .from(subscriptions)
-            .where(eq(subscriptions.storeId, membership.storeId))
+            .where(eq(subscriptions.storeId, activeMembership.storeId))
             .limit(1)
           token.subscriptionStatus = sub?.status ?? null
         } else {
