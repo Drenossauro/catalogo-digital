@@ -33,7 +33,6 @@ export default function ProductCard({ product, onAdd, size = 'md' }: Props) {
 
   function handleAdd() {
     if (hasVariants) {
-      // Verificar variantes obrigatórias
       const missing = product.variants!.filter((v) => v.required && !selected[v.id])
       if (missing.length > 0) return
       onAdd(product, buildVariantLabel())
@@ -47,9 +46,10 @@ export default function ProductCard({ product, onAdd, size = 'md' }: Props) {
   const displayPrice = hasVariants ? computePrice() : product.price
 
   return (
-    <div className="flex flex-col relative">
+    <div className="flex flex-col relative group">
+      {/* Imagem */}
       <div
-        className={`relative overflow-hidden rounded-lg ${size === 'sm' ? 'aspect-[3/4] w-36' : 'aspect-[3/4]'}`}
+        className={`relative overflow-hidden ${size === 'sm' ? 'aspect-[3/4] w-40 rounded-xl' : 'aspect-[3/4] rounded-xl'}`}
         style={{ background: theme.surface }}
       >
         {product.imageUrl ? (
@@ -57,27 +57,38 @@ export default function ProductCard({ product, onAdd, size = 'md' }: Props) {
             src={product.imageUrl}
             alt={product.name}
             fill
-            className="object-cover"
+            className="object-cover transition-transform duration-500 group-hover:scale-105"
             sizes="(max-width: 640px) 50vw, 33vw"
           />
         ) : (
           <div className="w-full h-full flex items-center justify-center" style={{ color: theme.textFaint }}>
-            <span className="text-3xl">✦</span>
+            <span className="text-4xl font-serif">✦</span>
           </div>
         )}
+
+        {/* Botão adicionar */}
         <button
           onClick={() => hasVariants ? setShowPicker(true) : onAdd(product)}
-          className="absolute bottom-2 right-2 w-8 h-8 rounded-full flex items-center justify-center shadow-md cursor-pointer active:scale-95 transition-transform"
+          className="absolute bottom-3 right-3 w-9 h-9 rounded-full flex items-center justify-center shadow-lg cursor-pointer active:scale-90 transition-all duration-200 opacity-90 hover:opacity-100"
           style={{ background: theme.text, color: theme.bg }}
-          aria-label="Adicionar"
+          aria-label="Adicionar ao carrinho"
         >
-          <Plus size={14} />
+          <Plus size={15} strokeWidth={2} />
         </button>
       </div>
 
-      <div className="pt-2 px-0.5">
-        <p className="text-xs leading-snug line-clamp-2" style={{ color: theme.textMuted }}>{product.name}</p>
-        <p className="text-sm font-semibold mt-0.5" style={{ color: theme.text }}>
+      {/* Texto */}
+      <div className="pt-2.5 px-0.5 flex flex-col gap-0.5">
+        <p
+          className="text-[13px] leading-snug line-clamp-2 font-medium"
+          style={{ color: theme.text }}
+        >
+          {product.name}
+        </p>
+        <p
+          className="text-sm font-semibold"
+          style={{ color: theme.accent }}
+        >
           R$ {displayPrice.toFixed(2).replace('.', ',')}
         </p>
       </div>
@@ -85,11 +96,13 @@ export default function ProductCard({ product, onAdd, size = 'md' }: Props) {
       {/* Seletor de variantes */}
       {showPicker && hasVariants && (
         <div
-          className="absolute bottom-full left-0 right-0 mb-2 z-30 rounded-lg p-3 shadow-xl"
+          className="absolute bottom-full left-0 right-0 mb-2 z-30 rounded-xl p-4 shadow-2xl"
           style={{ background: theme.bg, border: `1px solid ${theme.border}` }}
         >
           <div className="flex items-center justify-between mb-3">
-            <p className="text-xs font-medium" style={{ color: theme.text }}>{product.name}</p>
+            <p className="text-xs font-medium tracking-wide" style={{ color: theme.text }}>
+              {product.name}
+            </p>
             <button onClick={() => setShowPicker(false)} style={{ color: theme.textFaint }}>
               <X size={14} />
             </button>
@@ -97,7 +110,10 @@ export default function ProductCard({ product, onAdd, size = 'md' }: Props) {
 
           {product.variants!.map((variant) => (
             <div key={variant.id} className="mb-3">
-              <p className="text-[10px] uppercase tracking-wider mb-1.5" style={{ color: theme.textMuted }}>
+              <p
+                className="text-[10px] uppercase tracking-widest mb-2"
+                style={{ color: theme.textMuted }}
+              >
                 {variant.label}{variant.required && ' *'}
               </p>
               <div className="flex flex-wrap gap-1.5">
@@ -107,10 +123,10 @@ export default function ProductCard({ product, onAdd, size = 'md' }: Props) {
                     <button
                       key={opt.value}
                       onClick={() => setSelected((prev) => ({ ...prev, [variant.id]: opt }))}
-                      className="px-2 py-1 text-xs rounded cursor-pointer transition-colors"
+                      className="px-3 py-1.5 text-xs rounded-full cursor-pointer transition-all"
                       style={
                         isSelected
-                          ? { background: theme.text, color: theme.bg }
+                          ? { background: theme.text, color: theme.bg, border: `1px solid ${theme.text}` }
                           : { background: 'transparent', color: theme.textMuted, border: `1px solid ${theme.border}` }
                       }
                     >
@@ -126,7 +142,7 @@ export default function ProductCard({ product, onAdd, size = 'md' }: Props) {
           <button
             onClick={handleAdd}
             disabled={product.variants!.some((v) => v.required && !selected[v.id])}
-            className="w-full flex items-center justify-center gap-1.5 py-2 text-xs font-medium cursor-pointer rounded transition-opacity disabled:opacity-40"
+            className="w-full flex items-center justify-center gap-2 py-2.5 text-xs font-medium cursor-pointer rounded-lg transition-opacity disabled:opacity-40 mt-1"
             style={{ background: theme.text, color: theme.bg }}
           >
             <Check size={13} />

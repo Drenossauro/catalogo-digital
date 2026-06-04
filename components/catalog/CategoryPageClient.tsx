@@ -23,22 +23,37 @@ export default function CategoryPageClient({ products, whatsappNumber, maxInstal
 
   return (
     <ThemeProvider theme={theme}>
-      <main className="max-w-5xl mx-auto px-4 py-6">
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-x-3 gap-y-6">
-          {products.map((product) => (
-            <ProductCard key={product.id} product={product} onAdd={addToCart} />
-          ))}
-        </div>
+      <main
+        className="w-full px-5 py-8"
+        style={{ background: theme.bg, minHeight: '100vh' }}
+      >
+        {products.length === 0 ? (
+          <div
+            className="flex flex-col items-center justify-center py-32 text-center"
+            style={{ color: theme.textFaint }}
+          >
+            <ShoppingBag size={36} strokeWidth={1} className="mb-4" />
+            <p className="text-sm">Nenhum produto nesta categoria ainda.</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-x-4 gap-y-8">
+            {products.map((product) => (
+              <ProductCard key={product.id} product={product} onAdd={addToCart} />
+            ))}
+          </div>
+        )}
       </main>
 
       {totalItems > 0 && (
         <button
           onClick={() => setCartOpen(true)}
-          className="fixed bottom-6 right-4 z-40 flex items-center gap-2 px-4 py-3 rounded-full shadow-lg cursor-pointer active:scale-95 transition-transform"
+          className="fixed bottom-6 right-5 z-40 flex items-center gap-2.5 px-5 py-3.5 rounded-full shadow-xl cursor-pointer active:scale-95 transition-transform"
           style={{ background: theme.text, color: theme.bg }}
         >
           <ShoppingBag size={16} strokeWidth={1.5} />
-          <span className="text-sm font-medium">{totalItems} {totalItems === 1 ? 'item' : 'itens'}</span>
+          <span className="text-sm font-medium tracking-wide">
+            {totalItems} {totalItems === 1 ? 'item' : 'itens'}
+          </span>
         </button>
       )}
 
