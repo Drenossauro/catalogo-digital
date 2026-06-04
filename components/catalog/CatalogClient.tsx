@@ -146,7 +146,7 @@ export default function CatalogClient({ products, categories, whatsappNumber, st
                 <div className="flex gap-3 overflow-x-auto no-scrollbar px-5 pb-1">
                   {catProducts.map((product) => (
                     <div key={product.id} className="shrink-0 w-40">
-                      <ProductCard product={product} onAdd={addToCart} size="sm" />
+                      <ProductCard product={product} onAdd={addToCart} size="sm" storeSlug={storeSlug} />
                     </div>
                   ))}
                   {catProducts.length >= 3 && (
@@ -173,7 +173,7 @@ export default function CatalogClient({ products, categories, whatsappNumber, st
               </h2>
               <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-x-3 gap-y-6">
                 {uncategorized.map((product) => (
-                  <ProductCard key={product.id} product={product} onAdd={addToCart} />
+                  <ProductCard key={product.id} product={product} onAdd={addToCart} storeSlug={storeSlug} />
                 ))}
               </div>
             </section>

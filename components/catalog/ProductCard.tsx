@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import Image from 'next/image'
+import Link from 'next/link'
 import { Plus, X, Check } from 'lucide-react'
 import { Product, ProductVariantOption } from '@/types'
 import { useTheme } from './ThemeProvider'
@@ -10,9 +11,10 @@ interface Props {
   product: Product
   onAdd: (product: Product, variantLabel?: string) => void
   size?: 'sm' | 'md'
+  storeSlug?: string | null
 }
 
-export default function ProductCard({ product, onAdd, size = 'md' }: Props) {
+export default function ProductCard({ product, onAdd, size = 'md', storeSlug }: Props) {
   const theme = useTheme()
   const hasVariants = product.variants && product.variants.length > 0
   const [showPicker, setShowPicker] = useState(false)
@@ -44,47 +46,62 @@ export default function ProductCard({ product, onAdd, size = 'md' }: Props) {
   }
 
   const displayPrice = hasVariants ? computePrice() : product.price
+  const productHref = storeSlug ? `/loja/${storeSlug}/produto/${product.id}` : null
+
+  const ImageWrapper = ({ children }: { children: React.ReactNode }) =>
+    productHref ? (
+      <Link href={productHref} className="block">
+        {children}
+      </Link>
+    ) : (
+      <div>{children}</div>
+    )
 
   return (
     <div className="flex flex-col relative group">
       {/* Imagem */}
-      <div
-        className={`relative overflow-hidden ${size === 'sm' ? 'aspect-[3/4] w-40 rounded-xl' : 'aspect-[3/4] rounded-xl'}`}
-        style={{ background: theme.surface }}
-      >
-        {product.imageUrl ? (
-          <Image
-            src={product.imageUrl}
-            alt={product.name}
-            fill
-            className="object-cover transition-transform duration-500 group-hover:scale-105"
-            sizes="(max-width: 640px) 50vw, 33vw"
-          />
-        ) : (
-          <div className="w-full h-full flex items-center justify-center" style={{ color: theme.textFaint }}>
-            <span className="text-4xl font-serif">✦</span>
-          </div>
-        )}
-
-        {/* Botão adicionar */}
-        <button
-          onClick={() => hasVariants ? setShowPicker(true) : onAdd(product)}
-          className="absolute bottom-3 right-3 w-9 h-9 rounded-full flex items-center justify-center shadow-lg cursor-pointer active:scale-90 transition-all duration-200 opacity-90 hover:opacity-100"
-          style={{ background: theme.text, color: theme.bg }}
-          aria-label="Adicionar ao carrinho"
+      <ImageWrapper>
+        <div
+          className={`relative overflow-hidden ${size === 'sm' ? 'aspect-[3/4] w-40 rounded-xl' : 'aspect-[3/4] rounded-xl'}`}
+          style={{ background: theme.surface }}
         >
-          <Plus size={15} strokeWidth={2} />
-        </button>
-      </div>
+          {product.imageUrl ? (
+            <Image
+              src={product.imageUrl}
+              alt={product.name}
+              fill
+              className="object-cover transition-transform duration-500 group-hover:scale-105"
+              sizes="(max-width: 640px) 50vw, 33vw"
+            />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center" style={{ color: theme.textFaint }}>
+              <span className="text-4xl font-serif">✦</span>
+            </div>
+          )}
+
+          {/* Botão adicionar */}
+          <button
+            onClick={(e) => { e.preventDefault(); hasVariants ? setShowPicker(true) : onAdd(product) }}
+            className="absolute bottom-3 right-3 w-9 h-9 rounded-full flex items-center justify-center shadow-lg cursor-pointer active:scale-90 transition-all duration-200 opacity-90 hover:opacity-100"
+            style={{ background: theme.text, color: theme.bg }}
+            aria-label="Adicionar ao carrinho"
+          >
+            <Plus size={15} strokeWidth={2} />
+          </button>
+        </div>
+      </ImageWrapper>
 
       {/* Texto */}
       <div className="pt-2.5 px-0.5 flex flex-col gap-0.5">
-        <p
-          className="text-[13px] leading-snug line-clamp-2 font-medium"
-          style={{ color: theme.text }}
-        >
-          {product.name}
-        </p>
+        {productHref ? (
+          <Link href={productHref} className="text-[13px] leading-snug line-clamp-2 font-medium hover:opacity-70 transition-opacity" style={{ color: theme.text }}>
+            {product.name}
+          </Link>
+        ) : (
+          <p className="text-[13px] leading-snug line-clamp-2 font-medium" style={{ color: theme.text }}>
+            {product.name}
+          </p>
+        )}
         <p
           className="text-sm font-semibold"
           style={{ color: theme.accent }}

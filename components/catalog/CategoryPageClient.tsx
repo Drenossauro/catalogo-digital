@@ -38,7 +38,7 @@ export default function CategoryPageClient({ products, whatsappNumber, maxInstal
         ) : (
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-x-4 gap-y-8">
             {products.map((product) => (
-              <ProductCard key={product.id} product={product} onAdd={addToCart} />
+              <ProductCard key={product.id} product={product} onAdd={addToCart} storeSlug={storeSlug} />
             ))}
           </div>
         )}
