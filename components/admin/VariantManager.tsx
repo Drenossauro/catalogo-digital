@@ -26,6 +26,7 @@ export default function VariantManager({ productId, initialVariants, disabled }:
   const [variants, setVariants] = useState<VariantGroup[]>(initialVariants)
   const [saving, setSaving] = useState(false)
   const [msg, setMsg] = useState<string | null>(null)
+  const [rawPrices, setRawPrices] = useState<Record<string, string>>({})
 
   function addGroup() {
     setVariants((prev) => [
@@ -154,10 +155,20 @@ export default function VariantManager({ productId, initialVariants, disabled }:
                     <div className="flex items-center gap-1 shrink-0">
                       <span className="text-xs text-[#1a1a1a]/30">+R$</span>
                       <input
-                        type="number"
-                        value={opt.price_modifier}
-                        onChange={(e) => updateOption(gIdx, oIdx, 'price_modifier', Number(e.target.value))}
-                        step="0.01"
+                        type="text"
+                        inputMode="decimal"
+                        value={rawPrices[`${gIdx}-${oIdx}`] ?? (opt.price_modifier ? String(opt.price_modifier).replace('.', ',') : '')}
+                        onChange={(e) => {
+                          const val = e.target.value.replace(/[^\d,\.]/g, '')
+                          setRawPrices((prev) => ({ ...prev, [`${gIdx}-${oIdx}`]: val }))
+                        }}
+                        onBlur={() => {
+                          const raw = rawPrices[`${gIdx}-${oIdx}`] ?? ''
+                          const num = parseFloat(raw.replace(',', '.')) || 0
+                          updateOption(gIdx, oIdx, 'price_modifier', num)
+                          setRawPrices((prev) => { const next = { ...prev }; delete next[`${gIdx}-${oIdx}`]; return next })
+                        }}
+                        placeholder="0,00"
                         className="w-16 border-b border-black/10 bg-transparent py-1 text-sm text-right focus:outline-none focus:border-[#1a1a1a] transition-colors"
                       />
                     </div>

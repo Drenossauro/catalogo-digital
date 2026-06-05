@@ -36,6 +36,18 @@ export default function ProductForm({ categories, product, storeId, initialVaria
     const num = Number(product.price)
     return isNaN(num) ? '' : num.toFixed(2).replace('.', ',')
   })
+
+  function handlePriceChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const val = e.target.value.replace(/[^\d,\.]/g, '')
+    setPrice(val)
+  }
+
+  function handlePriceBlur() {
+    if (!price) return
+    const num = parseFloat(price.replace(',', '.'))
+    if (!isNaN(num)) setPrice(num.toFixed(2).replace('.', ','))
+    else setPrice('')
+  }
   const [categoryId, setCategoryId] = useState(product?.categoryId ?? '')
   const [active, setActive] = useState(product?.active ?? true)
   const [imageUrl, setImageUrl] = useState(product?.imageUrl ?? '')
@@ -161,14 +173,10 @@ export default function ProductForm({ categories, product, storeId, initialVaria
           <label className="text-xs font-medium text-[#1a1a1a]/50 uppercase tracking-wider">Preço base (R$) *</label>
           <input
             type="text"
-            inputMode="numeric"
+            inputMode="decimal"
             value={price}
-            onChange={(e) => {
-              const digits = e.target.value.replace(/\D/g, '')
-              if (!digits) { setPrice(''); return }
-              const num = parseInt(digits, 10)
-              setPrice((num / 100).toFixed(2).replace('.', ','))
-            }}
+            onChange={handlePriceChange}
+            onBlur={handlePriceBlur}
             required
             className="border-b border-black/15 bg-transparent px-0 py-3 text-sm focus:outline-none focus:border-[#1a1a1a] transition-colors"
             placeholder="0,00"
